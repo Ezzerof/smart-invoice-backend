@@ -1,5 +1,9 @@
 HELP.md
 target/
+*.log
+*.class
+*.jar
+*.war
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -14,10 +18,11 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
-*.iml
 *.ipr
+*.iml
+out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,3 +36,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Temporary files
+*.swp
+*.bak
+*.tmp
