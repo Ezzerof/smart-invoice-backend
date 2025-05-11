@@ -1,0 +1,26 @@
+User Stories – SmartInvoice
+
+1. As a freelancer, I want to create a new invoice with client and service details, so that I can bill my clients easily.
+
+2. As a freelancer, I want the system to automatically email invoices to my clients, so that I don’t forget to send them.
+
+3. As a freelancer, I want to track the payment status of each invoice, so that I know which clients still owe me money.
+
+4. As a freelancer, I want to receive notifications or see reminders when an invoice is overdue, so I can follow up.
+
+5. As a freelancer, I want the system to send payment reminders to clients, so that I don’t have to do it manually.
+
+6. As a freelancer, I want to store and manage client contact information, so I don’t have to re-enter it every time.
+
+7. As a freelancer, I want to download a CSV report of invoices, so I can prepare my taxes easily.
+
+8. As a freelancer, I want to log in securely to the system, so that no one else can access my financial data.
+
+9. As a freelancer, I want the app to run locally or on a small VPS, so I don’t have to rely on expensive cloud tools.
+
+10. As a freelancer, I want to generate PDF invoices with my branding, so that they look professional.
+
+(Stretch goals – Optional future user stories)
+11. As a freelancer, I want to see a dashboard with income stats, so I can track how I’m doing monthly.
+12. As a freelancer, I want to create recurring invoices, so I don’t have to re-enter them every month.
+
