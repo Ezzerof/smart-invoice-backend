@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smartinvoice_db
+    username: postgres
+    password: yourPassword
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: yourEmailPassword
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework: INFO
+
+invoice:
+  reminder:
+    schedule: "0 0 0 * * *"  # everyday at midnight
