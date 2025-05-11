@@ -1,0 +1,56 @@
+Client Requirements – SmartInvoice
+
+Project Goal:
+Build a lightweight, user-friendly system for managing invoices, tracking payments, and automating reminders, designed for freelancers and small service-based businesses.
+
+Core Functional Requirements:
+1. Invoice Management
+   - Create, update, and delete invoices.
+   - Each invoice includes: client info, services, prices, due date, status (paid/unpaid).
+   - Generate a unique invoice number per client.
+   - Allow exporting invoice data as PDF and CSV.
+
+2. Client Management
+   - Add and manage client information (name, email, address, company, etc.).
+   - Store contact history per client (optional).
+
+3. Payment Tracking
+   - Mark invoices as paid/unpaid/overdue.
+   - Automatically update invoice status based on due date.
+
+4. Email Notifications
+   - Automatically email the invoice to the client when created.
+   - Send reminders:
+     - X days before due date.
+     - X days after due date if unpaid.
+   - Reminder frequency should be configurable.
+
+5. Data Export
+   - Export all invoice and payment data as CSV.
+   - Include filters by date, client, and payment status.
+
+6. Authentication (Basic)
+   - Simple user login system (single user, secure).
+   - Optional: password stored securely (hashing).
+
+7. UI or API Interface
+   - A basic web UI or API endpoints to manage invoices and clients.
+   - Frontend is optional — a lightweight API or even a CLI is acceptable.
+
+Technical Requirements:
+- The system must be easy to run (via script, JAR, or local server).
+- Must include a README with installation and usage instructions.
+- Use a real database (PostgreSQL, SQLite, or MongoDB).
+- Must include unit and integration tests.
+
+Stretch Goals (Nice-to-Have):
+- Dashboard with visual stats (number of unpaid invoices, total income).
+- Recurring invoices.
+- Multi-user support (e.g., login for multiple freelancers).
+- Invoice template customization with logo and color.
+
+Constraints:
+- App must be self-hosted or runnable locally.
+- Should run with minimal dependencies.
+- Prefer simple setup over heavy frameworks.
+

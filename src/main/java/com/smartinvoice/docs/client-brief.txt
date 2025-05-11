@@ -1,0 +1,31 @@
+Project Title: SmartInvoice - Automated Invoicing and Payment Reminder System
+
+Client: Maria J., Freelance Graphic Designer
+
+Background:
+Maria is a full-time freelancer who designs branding materials for startups and local businesses. She works with multiple clients each month, and each project requires manual invoicing. Maria often forgets to send invoices on time, loses track of which ones were paid, and spends a lot of time following up with clients. She's looking for a lightweight tool to automate this process without relying on expensive SaaS platforms like QuickBooks or FreshBooks.
+
+Client Needs:
+- Generate professional-looking invoices and send them via email.
+- Track which invoices have been paid and which are still pending.
+- Automatically send payment reminders at configurable intervals (before due date and after if unpaid).
+- Manage a list of regular clients to quickly generate repeat invoices.
+- Export invoice and client data to CSV for tax reporting.
+- Self-hostable or lightweight enough to run locally (not a heavy cloud platform).
+- Security is important, but the system will be used by a single user.
+
+Expectations:
+- A backend system (preferably with a lightweight UI or API interface) that handles all core logic and automation.
+- Clean code and documentation so it can be maintained or handed off to another developer later.
+- Easy to deploy or run locally with simple instructions.
+
+Stretch Goals (Optional for Future Version):
+- Ability to generate PDF invoices with branding/logo support.
+- Dashboard-style interface showing overdue and upcoming invoices.
+- Multi-user support for small teams.
+
+Notes:
+Maria is not technical, so this system needs to be simple to configure and run. A web-based dashboard or an easy-to-use script-based system is acceptable. The core requirement is to reduce manual follow-ups and ensure timely invoicing.
+
+Project Developed By: Cristian Bitca
+Freelance Software Developer
