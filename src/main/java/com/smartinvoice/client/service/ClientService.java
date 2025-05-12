@@ -4,6 +4,7 @@ import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.entity.Client;
 import com.smartinvoice.client.repository.ClientRepository;
+import com.smartinvoice.exception.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class ClientService {
     // Get a client by ID
     public ClientResponseDto getClientById(Long id) {
         Client client = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         return new ClientResponseDto(
                 client.getId(),
@@ -66,7 +67,7 @@ public class ClientService {
     // Update a client
     public ClientResponseDto updateClient(Long id, ClientRequestDto dto) {
         Client existingClient = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         existingClient.setName(dto.name());
         existingClient.setEmail(dto.email());
@@ -87,7 +88,7 @@ public class ClientService {
     // Delete a client
     public void deleteClient(Long id) {
         Client existingClient = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         repository.delete(existingClient);
     }
