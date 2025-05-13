@@ -1,8 +1,8 @@
-package com.smartinvoice.client.controller;
+package com.smartinvoice.product.controller;
 
-import com.smartinvoice.client.dto.ProductRequestDto;
-import com.smartinvoice.client.dto.ProductResponseDto;
-import com.smartinvoice.client.service.ProductService;
+import com.smartinvoice.product.dto.ProductRequestDto;
+import com.smartinvoice.product.dto.ProductResponseDto;
+import com.smartinvoice.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

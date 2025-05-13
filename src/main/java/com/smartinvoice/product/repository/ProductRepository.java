@@ -1,6 +1,6 @@
-package com.smartinvoice.client.repository;
+package com.smartinvoice.product.repository;
 
-import com.smartinvoice.client.entity.Product;
+import com.smartinvoice.product.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {

@@ -1,4 +1,4 @@
-package com.smartinvoice.client.entity;
+package com.smartinvoice.product.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

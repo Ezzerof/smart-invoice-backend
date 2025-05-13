@@ -1,9 +1,9 @@
-package com.smartinvoice.client.service;
+package com.smartinvoice.product.service;
 
-import com.smartinvoice.client.dto.ProductRequestDto;
-import com.smartinvoice.client.dto.ProductResponseDto;
-import com.smartinvoice.client.entity.Product;
-import com.smartinvoice.client.repository.ProductRepository;
+import com.smartinvoice.product.dto.ProductRequestDto;
+import com.smartinvoice.product.dto.ProductResponseDto;
+import com.smartinvoice.product.entity.Product;
+import com.smartinvoice.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
