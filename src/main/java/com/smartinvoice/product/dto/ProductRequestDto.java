@@ -1,4 +1,4 @@
-package com.smartinvoice.client.dto;
+package com.smartinvoice.product.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

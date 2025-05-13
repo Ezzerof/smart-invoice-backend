@@ -1,4 +1,4 @@
-package com.smartinvoice.client.dto;
+package com.smartinvoice.product.dto;
 
 public record ProductResponseDto(
         Long id,
