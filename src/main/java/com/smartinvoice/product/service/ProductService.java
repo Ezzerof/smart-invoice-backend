@@ -4,7 +4,7 @@ import com.smartinvoice.product.dto.ProductRequestDto;
 import com.smartinvoice.product.dto.ProductResponseDto;
 import com.smartinvoice.product.entity.Product;
 import com.smartinvoice.product.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.smartinvoice.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +37,13 @@ public class ProductService {
 
     public ProductResponseDto getById(Long id) {
         Product product = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return mapToDto(product);
     }
 
     public ProductResponseDto update(Long id, ProductRequestDto dto) {
         Product existing = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         existing.setName(dto.name());
         existing.setDescription(dto.description());
@@ -55,7 +55,7 @@ public class ProductService {
 
     public void delete(Long id) {
         Product existing = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         repository.delete(existing);
     }
 
