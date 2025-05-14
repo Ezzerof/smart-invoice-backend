@@ -1,6 +1,7 @@
 package com.smartinvoice.invoice.service;
 
 import com.smartinvoice.client.repository.ClientRepository;
+import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
 import com.smartinvoice.invoice.entity.Invoice;
@@ -23,7 +24,7 @@ public class InvoiceService {
 
     public InvoiceResponseDto createInvoice(InvoiceRequestDto dto) {
         var client = clientRepository.findById(dto.clientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         var products = productRepository.findAllById(dto.productIds());
 
@@ -53,14 +54,14 @@ public class InvoiceService {
 
     public InvoiceResponseDto getInvoiceById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
 
         return mapToDto(invoice);
     }
 
     public void deleteInvoice(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
 
         invoiceRepository.delete(invoice);
     }
