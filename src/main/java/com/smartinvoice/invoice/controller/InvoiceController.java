@@ -6,6 +6,8 @@ import com.smartinvoice.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,4 +40,14 @@ public class InvoiceController {
     public void deleteInvoice(@PathVariable Long id) {
         invoiceService.deleteInvoice(id);
     }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> getInvoicePdf(@PathVariable Long id) {
+        byte[] pdf = invoiceService.getInvoicePdf(id);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=invoice-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
 }

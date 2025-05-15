@@ -5,6 +5,7 @@ import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
 import com.smartinvoice.invoice.entity.Invoice;
+import com.smartinvoice.invoice.pdf.PdfGeneratorService;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +22,7 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
+    private final PdfGeneratorService pdfGeneratorService;
 
     public InvoiceResponseDto createInvoice(InvoiceRequestDto dto) {
         var client = clientRepository.findById(dto.clientId())
@@ -77,4 +79,12 @@ public class InvoiceService {
                 invoice.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList())
         );
     }
+
+    public byte[] getInvoicePdf(Long id) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+
+        return pdfGeneratorService.generateInvoicePdf(invoice);
+    }
+
 }
