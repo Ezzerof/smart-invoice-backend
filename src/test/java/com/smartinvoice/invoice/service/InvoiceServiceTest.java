@@ -5,6 +5,7 @@ import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.entity.Invoice;
+import com.smartinvoice.invoice.pdf.PdfGeneratorService;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.product.entity.Product;
 import com.smartinvoice.product.repository.ProductRepository;
@@ -25,13 +26,14 @@ class InvoiceServiceTest {
     private ClientRepository clientRepository;
     private ProductRepository productRepository;
     private InvoiceService invoiceService;
+    private PdfGeneratorService pdfGeneratorService;
 
     @BeforeEach
     void setUp() {
         invoiceRepository = mock(InvoiceRepository.class);
         clientRepository = mock(ClientRepository.class);
         productRepository = mock(ProductRepository.class);
-        invoiceService = new InvoiceService(invoiceRepository, clientRepository, productRepository);
+        invoiceService = new InvoiceService(invoiceRepository, clientRepository, productRepository, pdfGeneratorService);
     }
 
     @Test
