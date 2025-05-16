@@ -25,6 +25,9 @@ public class ClientService {
                 .email(dto.email())
                 .companyName(dto.companyName())
                 .address(dto.address())
+                .city(dto.city())
+                .country(dto.country())
+                .postcode(dto.postcode())
                 .build();
 
         Client saved = repository.save(client);
