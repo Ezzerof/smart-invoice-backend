@@ -20,4 +20,8 @@ public class Client {
     private String email;
     private String companyName;
     private String address;
+    private String city;
+    private String country;
+    private String postcode;
+
 }

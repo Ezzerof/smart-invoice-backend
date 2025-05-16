@@ -34,7 +34,10 @@ public class ClientService {
                 saved.getName(),
                 saved.getEmail(),
                 saved.getCompanyName(),
-                saved.getAddress()
+                saved.getAddress(),
+                saved.getCity(),
+                saved.getCountry(),
+                saved.getPostcode()
         );
     }
 
@@ -46,7 +49,10 @@ public class ClientService {
                         client.getName(),
                         client.getEmail(),
                         client.getCompanyName(),
-                        client.getAddress()))
+                        client.getAddress(),
+                        client.getCity(),
+                        client.getCountry(),
+                        client.getPostcode()))
                 .collect(Collectors.toList());
     }
 
@@ -60,7 +66,10 @@ public class ClientService {
                 client.getName(),
                 client.getEmail(),
                 client.getCompanyName(),
-                client.getAddress()
+                client.getAddress(),
+                client.getCity(),
+                client.getCountry(),
+                client.getPostcode()
         );
     }
 
@@ -81,7 +90,10 @@ public class ClientService {
                 updatedClient.getName(),
                 updatedClient.getEmail(),
                 updatedClient.getCompanyName(),
-                updatedClient.getAddress()
+                updatedClient.getAddress(),
+                updatedClient.getCity(),
+                updatedClient.getCountry(),
+                updatedClient.getPostcode()
         );
     }
 
