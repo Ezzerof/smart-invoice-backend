@@ -50,4 +50,10 @@ public class InvoiceController {
                 .body(pdf);
     }
 
+    @PostMapping("/{id}/email")
+    @ResponseStatus(HttpStatus.OK)
+    public void emailInvoiceToClient(@PathVariable Long id) {
+        invoiceService.emailInvoiceToClient(id);
+    }
+
 }
