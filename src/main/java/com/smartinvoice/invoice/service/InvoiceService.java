@@ -4,6 +4,7 @@ import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
+import com.smartinvoice.invoice.email.EmailService;
 import com.smartinvoice.invoice.entity.Invoice;
 import com.smartinvoice.invoice.pdf.PdfGeneratorService;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
@@ -23,6 +24,7 @@ public class InvoiceService {
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
     private final PdfGeneratorService pdfGeneratorService;
+    private final EmailService emailService;
 
     public InvoiceResponseDto createInvoice(InvoiceRequestDto dto) {
         var client = clientRepository.findById(dto.clientId())
@@ -85,6 +87,19 @@ public class InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
 
         return pdfGeneratorService.generateInvoicePdf(invoice);
+    }
+
+    public void emailInvoiceToClient(Long invoiceId) {
+        byte[] pdf = getInvoicePdf(invoiceId);
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+
+        String email = invoice.getClient().getEmail();
+        String subject = "Invoice: " + invoice.getInvoiceNumber();
+        String body = "Dear " + invoice.getClient().getName() + ",\n\nPlease find attached your invoice.";
+
+        emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
     }
 
 }
