@@ -5,5 +5,8 @@ public record ClientResponseDto(
         String name,
         String email,
         String companyName,
-        String address
+        String address,
+        String city,
+        String country,
+        String postcode
 ) {}

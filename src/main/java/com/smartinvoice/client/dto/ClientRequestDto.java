@@ -7,5 +7,9 @@ public record ClientRequestDto(
         @NotBlank String name,
         @NotBlank @Email String email,
         String companyName,
-        String address
+        String address,
+        String city,
+        String country,
+        String postcode
+
 ) {}
