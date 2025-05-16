@@ -73,6 +73,9 @@ public class PdfGeneratorService {
             billedTo.addElement(new Paragraph("BILLED TO", boldFont));
             billedTo.addElement(new Paragraph(invoice.getClient().getName(), subFont));
             billedTo.addElement(new Paragraph(invoice.getClient().getAddress(), subFont));
+            billedTo.addElement(new Paragraph(invoice.getClient().getCity(), subFont));
+            billedTo.addElement(new Paragraph(invoice.getClient().getCountry(), subFont));
+            billedTo.addElement(new Paragraph(invoice.getClient().getPostcode(), subFont));
             metaTable.addCell(billedTo);
 
             PdfPCell invoiceDetails = new PdfPCell();
