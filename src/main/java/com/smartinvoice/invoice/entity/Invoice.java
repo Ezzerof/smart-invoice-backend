@@ -1,5 +1,6 @@
 package com.smartinvoice.invoice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.smartinvoice.client.entity.Client;
 import com.smartinvoice.product.entity.Product;
 import jakarta.persistence.*;
@@ -34,6 +35,7 @@ public class Invoice {
 
     @ManyToOne
     @JoinColumn(name = "client_id")
+    @JsonBackReference
     private Client client;
 
     @ManyToMany

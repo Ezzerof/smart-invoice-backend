@@ -105,6 +105,11 @@ public class ClientService {
         Client existingClient = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
+        if (!existingClient.getInvoices().isEmpty()) {
+            throw new IllegalStateException("Client has invoices and cannot be deleted.");
+        }
+
+
         repository.delete(existingClient);
     }
 }
