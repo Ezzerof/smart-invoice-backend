@@ -43,6 +43,7 @@ public class InvoiceService {
                 .client(client)
                 .products(products)
                 .totalAmount(totalAmount)
+                .isPaid(dto.isPaid())
                 .build();
 
         Invoice saved = invoiceRepository.save(invoice);
@@ -78,7 +79,8 @@ public class InvoiceService {
                 invoice.getDueDate(),
                 invoice.getTotalAmount(),
                 invoice.getClient().getId(),
-                invoice.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList())
+                invoice.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList()),
+                invoice.getIsPaid()
         );
     }
 

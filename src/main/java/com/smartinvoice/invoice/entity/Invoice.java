@@ -29,6 +29,9 @@ public class Invoice {
 
     private double totalAmount;
 
+    @Column(name = "is_paid", nullable = false)
+    private Boolean isPaid;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;

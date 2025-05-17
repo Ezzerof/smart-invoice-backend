@@ -8,5 +8,6 @@ public record InvoiceRequestDto(
         LocalDate issueDate,
         LocalDate dueDate,
         Long clientId,
-        List<Long> productIds
+        List<Long> productIds,
+        Boolean isPaid
 ) {}

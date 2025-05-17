@@ -10,5 +10,6 @@ public record InvoiceResponseDto(
         LocalDate dueDate,
         double totalAmount,
         Long clientId,
-        List<Long> productIds
+        List<Long> productIds,
+        Boolean isPaid
 ) {}
