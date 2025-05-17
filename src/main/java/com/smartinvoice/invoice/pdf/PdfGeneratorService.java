@@ -78,6 +78,9 @@ public class PdfGeneratorService {
             billedTo.addElement(new Paragraph(invoice.getClient().getPostcode(), subFont));
             metaTable.addCell(billedTo);
 
+            document.add(new Paragraph("Status: " + (invoice.getIsPaid() ? "Paid" : "Unpaid"), boldFont));
+
+
             PdfPCell invoiceDetails = new PdfPCell();
             invoiceDetails.setBorder(Rectangle.NO_BORDER);
             invoiceDetails.addElement(new Paragraph("Invoice", titleFont));
