@@ -46,6 +46,8 @@ public class InvoiceService {
                 .isPaid(dto.isPaid())
                 .build();
 
+        client.getInvoices().add(invoice);
+
         Invoice saved = invoiceRepository.save(invoice);
 
         return mapToDto(saved);
