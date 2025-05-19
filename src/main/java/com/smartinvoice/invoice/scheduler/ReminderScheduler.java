@@ -1,0 +1,57 @@
+package com.smartinvoice.invoice.scheduler;
+
+import com.smartinvoice.invoice.email.EmailService;
+import com.smartinvoice.invoice.entity.Invoice;
+import com.smartinvoice.invoice.pdf.PdfGeneratorService;
+import com.smartinvoice.invoice.repository.InvoiceRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class ReminderScheduler {
+
+    private final InvoiceRepository invoiceRepository;
+    private final PdfGeneratorService pdfGeneratorService;
+    private final EmailService emailService;
+
+    @Scheduled(cron = "0 * * * * *") // every minute
+    public void runReminderTask() {
+        List<Invoice> unpaidInvoices = invoiceRepository.findAll()
+                .stream()
+                .filter(invoice -> !Boolean.TRUE.equals(invoice.getIsPaid()))
+                .filter(this::shouldSendReminder)
+                .toList();
+
+        unpaidInvoices.forEach(invoice -> {
+            byte[] pdf = pdfGeneratorService.generateInvoicePdf(invoice);
+
+            String email = invoice.getClient().getEmail();
+            String subject = "Payment Reminder: Invoice " + invoice.getInvoiceNumber();
+            String body = buildReminderBody(invoice);
+
+            emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+        });
+    }
+
+    private boolean shouldSendReminder(Invoice invoice) {
+        LocalDate dueDate = invoice.getDueDate();
+        LocalDate today = LocalDate.now();
+        long daysDiff = ChronoUnit.DAYS.between(dueDate, today);
+
+        return daysDiff == -3 || daysDiff == 1 || daysDiff == 5 || daysDiff == 10;
+    }
+
+    private String buildReminderBody(Invoice invoice) {
+        return "Dear " + invoice.getClient().getName() + ",\n\n"
+                + "This is a reminder for your invoice #" + invoice.getInvoiceNumber()
+                + " due on " + invoice.getDueDate() + ". Please find the invoice attached.\n\n"
+                + "Best regards,\nSmartInvoice Team";
+    }
+}
+
