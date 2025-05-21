@@ -22,9 +22,8 @@ public class ReminderScheduler {
 
     @Scheduled(cron = "0 * * * * *") // every minute
     public void runReminderTask() {
-        List<Invoice> unpaidInvoices = invoiceRepository.findAll()
+        List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidWithProducts()
                 .stream()
-                .filter(invoice -> !Boolean.TRUE.equals(invoice.getIsPaid()))
                 .filter(this::shouldSendReminder)
                 .toList();
 
