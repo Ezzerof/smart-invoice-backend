@@ -22,19 +22,29 @@ public class ReminderScheduler {
 
     @Scheduled(cron = "0 * * * * *") // every minute
     public void runReminderTask() {
-        List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidWithProducts()
+        List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidWithProductsAndReminders()
                 .stream()
                 .filter(this::shouldSendReminder)
                 .toList();
 
         unpaidInvoices.forEach(invoice -> {
-            byte[] pdf = pdfGeneratorService.generateInvoicePdf(invoice);
+            try {
+                byte[] pdf = pdfGeneratorService.generateInvoicePdf(invoice);
 
-            String email = invoice.getClient().getEmail();
-            String subject = "Payment Reminder: Invoice " + invoice.getInvoiceNumber();
-            String body = buildReminderBody(invoice);
+                String email = invoice.getClient().getEmail();
+                String subject = "Payment Reminder: Invoice " + invoice.getInvoiceNumber();
+                String body = buildReminderBody(invoice);
 
-            emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+                emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+                System.out.println("✅ Reminder email sent to: " + email);
+
+                // Track that we sent today
+                invoice.getReminderSentDates().add(LocalDate.now());
+                invoiceRepository.save(invoice);
+            } catch (Exception e) {
+                System.err.println("Failed to process invoice ID: " + invoice.getId());
+                e.printStackTrace();
+            }
         });
     }
 
@@ -43,8 +53,12 @@ public class ReminderScheduler {
         LocalDate today = LocalDate.now();
         long daysDiff = ChronoUnit.DAYS.between(dueDate, today);
 
-        return daysDiff == -3 || daysDiff == 1 || daysDiff == 5 || daysDiff == 10;
+        boolean isReminderDay = daysDiff == -3 || daysDiff == 1 || daysDiff == 5 || daysDiff == 10;
+        boolean alreadySentToday = invoice.getReminderSentDates().contains(today);
+
+        return isReminderDay && !alreadySentToday;
     }
+
 
     private String buildReminderBody(Invoice invoice) {
         return "Dear " + invoice.getClient().getName() + ",\n\n"

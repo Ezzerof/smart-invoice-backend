@@ -7,7 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "invoices")
@@ -45,4 +47,10 @@ public class Invoice {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Product> products;
+
+    @ElementCollection
+    @CollectionTable(name = "invoice_reminders", joinColumns = @JoinColumn(name = "invoice_id"))
+    @Column(name = "reminder_date")
+    private Set<LocalDate> reminderSentDates = new HashSet<>();
+
 }

@@ -7,6 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
-    @Query("SELECT i FROM Invoice i LEFT JOIN FETCH i.products WHERE i.isPaid = false")
-    List<Invoice> findAllUnpaidWithProducts();
+    @Query("""
+                SELECT DISTINCT i FROM Invoice i
+                LEFT JOIN FETCH i.products
+                LEFT JOIN FETCH i.reminderSentDates
+                WHERE i.isPaid = false
+            """)
+    List<Invoice> findAllUnpaidWithProductsAndReminders();
+
 }
