@@ -1,5 +1,6 @@
 package com.smartinvoice.product.service;
 
+import com.smartinvoice.audit.service.AuditLogService;
 import com.smartinvoice.product.dto.ProductRequestDto;
 import com.smartinvoice.product.dto.ProductResponseDto;
 import com.smartinvoice.product.entity.Product;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final AuditLogService auditLogService;
 
     public ProductResponseDto create(ProductRequestDto dto) {
         Product product = Product.builder()
@@ -26,6 +28,9 @@ public class ProductService {
                 .build();
 
         Product saved = repository.save(product);
+
+        auditLogService.log("CREATE", "Product", String.valueOf(saved.getId()));
+
         return mapToDto(saved);
     }
 
@@ -50,13 +55,20 @@ public class ProductService {
         existing.setPrice(dto.price());
         existing.setQuantity(dto.quantity());
 
-        return mapToDto(repository.save(existing));
+        Product updated = repository.save(existing);
+
+        auditLogService.log("UPDATE", "Product", String.valueOf(updated.getId()));
+
+        return mapToDto(updated);
     }
 
     public void delete(Long id) {
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
         repository.delete(existing);
+
+        auditLogService.log("DELETE", "Product", String.valueOf(existing.getId()));
     }
 
     private ProductResponseDto mapToDto(Product product) {
