@@ -36,30 +36,13 @@ public class ClientService {
 
         auditLogService.log("CREATE", "Client", String.valueOf(saved.getId()));
 
-        return new ClientResponseDto(
-                saved.getId(),
-                saved.getName(),
-                saved.getEmail(),
-                saved.getCompanyName(),
-                saved.getAddress(),
-                saved.getCity(),
-                saved.getCountry(),
-                saved.getPostcode()
-        );
+        return mapToDto(saved);
     }
 
     // Get a list of all clients
     public List<ClientResponseDto> getAllClients() {
         return repository.findAll().stream()
-                .map(client -> new ClientResponseDto(
-                        client.getId(),
-                        client.getName(),
-                        client.getEmail(),
-                        client.getCompanyName(),
-                        client.getAddress(),
-                        client.getCity(),
-                        client.getCountry(),
-                        client.getPostcode()))
+                .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -68,16 +51,7 @@ public class ClientService {
         Client client = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
-        return new ClientResponseDto(
-                client.getId(),
-                client.getName(),
-                client.getEmail(),
-                client.getCompanyName(),
-                client.getAddress(),
-                client.getCity(),
-                client.getCountry(),
-                client.getPostcode()
-        );
+        return mapToDto(client);
     }
 
     // Update a client
@@ -94,16 +68,7 @@ public class ClientService {
 
         auditLogService.log("UPDATE", "Client", String.valueOf(updatedClient.getId()));
 
-        return new ClientResponseDto(
-                updatedClient.getId(),
-                updatedClient.getName(),
-                updatedClient.getEmail(),
-                updatedClient.getCompanyName(),
-                updatedClient.getAddress(),
-                updatedClient.getCity(),
-                updatedClient.getCountry(),
-                updatedClient.getPostcode()
-        );
+        return mapToDto(updatedClient);
     }
 
     // Delete a client
@@ -118,5 +83,18 @@ public class ClientService {
         repository.delete(existingClient);
 
         auditLogService.log("DELETE", "Client", String.valueOf(existingClient.getId()));
+    }
+
+    private ClientResponseDto mapToDto(Client client) {
+        return new ClientResponseDto(
+                client.getId(),
+                client.getName(),
+                client.getEmail(),
+                client.getCompanyName(),
+                client.getAddress(),
+                client.getCity(),
+                client.getCountry(),
+                client.getPostcode()
+        );
     }
 }
