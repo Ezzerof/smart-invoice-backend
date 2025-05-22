@@ -1,5 +1,6 @@
 package com.smartinvoice.client.service;
 
+import com.smartinvoice.audit.service.AuditLogService;
 import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.entity.Client;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class ClientService {
 
     private final ClientRepository repository;
+    private final AuditLogService auditLogService;
 
     // Create a new client
     public ClientResponseDto createClient(ClientRequestDto dto) {
@@ -31,6 +33,8 @@ public class ClientService {
                 .build();
 
         Client saved = repository.save(client);
+
+        auditLogService.log("CREATE", "Client", String.valueOf(saved.getId()));
 
         return new ClientResponseDto(
                 saved.getId(),
@@ -88,6 +92,8 @@ public class ClientService {
 
         Client updatedClient = repository.save(existingClient);
 
+        auditLogService.log("UPDATE", "Client", String.valueOf(updatedClient.getId()));
+
         return new ClientResponseDto(
                 updatedClient.getId(),
                 updatedClient.getName(),
@@ -109,7 +115,8 @@ public class ClientService {
             throw new IllegalStateException("Client has invoices and cannot be deleted.");
         }
 
-
         repository.delete(existingClient);
+
+        auditLogService.log("DELETE", "Client", String.valueOf(existingClient.getId()));
     }
 }
