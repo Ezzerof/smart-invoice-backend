@@ -1,5 +1,6 @@
 package com.smartinvoice.invoice.service;
 
+import com.smartinvoice.audit.service.AuditLogService;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
@@ -25,6 +26,7 @@ public class InvoiceService {
     private final ProductRepository productRepository;
     private final PdfGeneratorService pdfGeneratorService;
     private final EmailService emailService;
+    private final AuditLogService auditLogService;
 
     public InvoiceResponseDto createInvoice(InvoiceRequestDto dto) {
         var client = clientRepository.findById(dto.clientId())
@@ -50,6 +52,8 @@ public class InvoiceService {
 
         Invoice saved = invoiceRepository.save(invoice);
 
+        auditLogService.log("CREATE", "Invoice", String.valueOf(saved.getId()));
+
         return mapToDto(saved);
     }
 
@@ -71,6 +75,8 @@ public class InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
 
         invoiceRepository.delete(invoice);
+
+        auditLogService.log("DELETE", "Invoice", String.valueOf(invoice.getId()));
     }
 
     private InvoiceResponseDto mapToDto(Invoice invoice) {
@@ -104,6 +110,8 @@ public class InvoiceService {
         String body = "Dear " + invoice.getClient().getName() + ",\n\nPlease find attached your invoice.";
 
         emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+
+        auditLogService.log("EMAIL_SENT", "Invoice", String.valueOf(invoice.getId()));
     }
 
 }
