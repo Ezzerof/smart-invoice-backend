@@ -7,9 +7,12 @@ import com.smartinvoice.client.entity.Client;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,6 +86,27 @@ public class ClientService {
         repository.delete(existingClient);
 
         auditLogService.log("DELETE", "Client", String.valueOf(existingClient.getId()));
+    }
+
+    public void writeClientsToCsv(HttpServletResponse response) throws IOException {
+        List<ClientResponseDto> clients = getAllClients();
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.println("id,name,email,companyName,address,city,country,postcode");
+
+            for (ClientResponseDto client : clients) {
+                writer.printf("%d,%s,%s,%s,%s,%s,%s,%s%n",
+                        client.id(),
+                        client.name(),
+                        client.email(),
+                        client.companyName(),
+                        client.address(),
+                        client.city(),
+                        client.country(),
+                        client.postcode()
+                );
+            }
+        }
     }
 
     private ClientResponseDto mapToDto(Client client) {
