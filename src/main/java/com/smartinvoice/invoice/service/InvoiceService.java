@@ -10,10 +10,13 @@ import com.smartinvoice.invoice.entity.Invoice;
 import com.smartinvoice.invoice.pdf.PdfGeneratorService;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.product.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,4 +117,23 @@ public class InvoiceService {
         auditLogService.log("EMAIL_SENT", "Invoice", String.valueOf(invoice.getId()));
     }
 
+    public void exportInvoicesToCsv(Writer writer) throws IOException {
+        List<Invoice> invoices = invoiceRepository.findAll();
+
+        try (CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(
+                "ID", "Invoice Number", "Issue Date", "Due Date", "Client Name", "Total Amount", "Is Paid"))) {
+
+            for (Invoice invoice : invoices) {
+                csvPrinter.printRecord(
+                        invoice.getId(),
+                        invoice.getInvoiceNumber(),
+                        invoice.getIssueDate(),
+                        invoice.getDueDate(),
+                        invoice.getClient().getName(),
+                        invoice.getTotalAmount(),
+                        invoice.getIsPaid()
+                );
+            }
+        }
+    }
 }
