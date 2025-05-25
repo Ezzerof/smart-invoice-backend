@@ -58,11 +58,4 @@ public class InvoiceController {
         invoiceService.emailInvoiceToClient(id);
     }
 
-    @GetMapping("/export")
-    public void exportInvoices(HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=invoices.csv");
-
-        invoiceService.exportInvoicesToCsv(response.getWriter());
-    }
 }

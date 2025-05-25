@@ -1,18 +1,21 @@
 package com.smartinvoice.client.service;
 
 import com.smartinvoice.audit.service.AuditLogService;
+import com.smartinvoice.export.dto.ClientFilterRequest;
 import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.entity.Client;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,25 +91,57 @@ public class ClientService {
         auditLogService.log("DELETE", "Client", String.valueOf(existingClient.getId()));
     }
 
-    public void writeClientsToCsv(HttpServletResponse response) throws IOException {
-        List<ClientResponseDto> clients = getAllClients();
+    public List<ClientResponseDto> getFilteredClients(ClientFilterRequest filters) {
+        return repository.findAll(withFilters(filters)).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private Specification<Client> withFilters(ClientFilterRequest filters) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filters.name() != null && !filters.name().isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + filters.name().toLowerCase() + "%"));
+            }
+            if (filters.companyName() != null && !filters.companyName().isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("companyName")), "%" + filters.companyName().toLowerCase() + "%"));
+            }
+            if (filters.city() != null && !filters.city().isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("city")), filters.city().toLowerCase()));
+            }
+            if (filters.country() != null && !filters.country().isBlank()) {
+                predicates.add(cb.equal(cb.lower(root.get("country")), filters.country().toLowerCase()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public void writeClientsToCsv(HttpServletResponse response, ClientFilterRequest filters) throws IOException {
+        List<Client> clients = repository.findAll(withFilters(filters));
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=clients.csv");
 
         try (PrintWriter writer = response.getWriter()) {
             writer.println("id,name,email,companyName,address,city,country,postcode");
 
-            for (ClientResponseDto client : clients) {
-                writer.printf("%d,%s,%s,%s,%s,%s,%s,%s%n",
-                        client.id(),
-                        client.name(),
-                        client.email(),
-                        client.companyName(),
-                        client.address(),
-                        client.city(),
-                        client.country(),
-                        client.postcode()
-                );
-            }
+            clients.forEach(client -> writer.printf("%d,%s,%s,%s,%s,%s,%s,%s%n",
+                    client.getId(),
+                    escapeCsv(client.getName()),
+                    escapeCsv(client.getEmail()),
+                    escapeCsv(client.getCompanyName()),
+                    escapeCsv(client.getAddress()),
+                    escapeCsv(client.getCity()),
+                    escapeCsv(client.getCountry()),
+                    escapeCsv(client.getPostcode())
+            ));
         }
+    }
+
+    private String escapeCsv(String input) {
+        return input != null ? input.replace("\"", "\"\"") : "";
     }
 
     private ClientResponseDto mapToDto(Client client) {

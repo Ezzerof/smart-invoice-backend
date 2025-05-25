@@ -1,5 +1,6 @@
 package com.smartinvoice.client.controller;
 
+import com.smartinvoice.export.dto.ClientFilterRequest;
 import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.service.ClientService;
@@ -50,12 +51,5 @@ public class ClientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
-    }
-
-    @GetMapping(value = "/export", produces = "text/csv")
-    public void exportClientsToCsv(HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=clients.csv");
-        clientService.writeClientsToCsv(response);
     }
 }

@@ -3,6 +3,7 @@ package com.smartinvoice.invoice.service;
 import com.smartinvoice.audit.service.AuditLogService;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
+import com.smartinvoice.export.dto.InvoiceFilterRequest;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
 import com.smartinvoice.invoice.email.EmailService;
@@ -10,13 +11,17 @@ import com.smartinvoice.invoice.entity.Invoice;
 import com.smartinvoice.invoice.pdf.PdfGeneratorService;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.product.repository.ProductRepository;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,11 +122,36 @@ public class InvoiceService {
         auditLogService.log("EMAIL_SENT", "Invoice", String.valueOf(invoice.getId()));
     }
 
-    public void exportInvoicesToCsv(Writer writer) throws IOException {
-        List<Invoice> invoices = invoiceRepository.findAll();
+    private Specification<Invoice> withFilters(InvoiceFilterRequest filters) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-        try (CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(
-                "ID", "Invoice Number", "Issue Date", "Due Date", "Client Name", "Total Amount", "Is Paid"))) {
+            if (filters.issueDate() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("issueDate"), filters.issueDate()));
+            }
+            if (filters.dueDate() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("issueDate"), filters.dueDate()));
+            }
+            if (filters.clientId() != null) {
+                predicates.add(cb.equal(root.get("client").get("id"), filters.clientId()));
+            }
+            if (filters.isPaid() != null) {
+                predicates.add(cb.equal(root.get("isPaid"), filters.isPaid()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public void exportInvoicesToCsv(HttpServletResponse response, InvoiceFilterRequest filters) throws IOException {
+        List<Invoice> invoices = invoiceRepository.findAll(withFilters(filters));
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=invoices.csv");
+
+        try (Writer writer = response.getWriter();
+             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                     .withHeader("ID", "Invoice Number", "Issue Date", "Due Date", "Client Name", "Total Amount", "Is Paid"))) {
 
             for (Invoice invoice : invoices) {
                 csvPrinter.printRecord(
@@ -131,7 +161,7 @@ public class InvoiceService {
                         invoice.getDueDate(),
                         invoice.getClient().getName(),
                         invoice.getTotalAmount(),
-                        invoice.getIsPaid()
+                        invoice.getIsPaid() ? "Yes" : "No"
                 );
             }
         }
