@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +88,15 @@ public class InvoiceService {
         auditLogService.log("DELETE", "Invoice", String.valueOf(invoice.getId()));
     }
 
+    public void markAsPaid(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+
+        invoice.setStatus(Invoice.InvoiceStatus.PAID);
+        invoice.setPaidDate(LocalDate.now());
+        invoiceRepository.save(invoice);
+    }
+
     private InvoiceResponseDto mapToDto(Invoice invoice) {
         return new InvoiceResponseDto(
                 invoice.getId(),
@@ -96,7 +106,8 @@ public class InvoiceService {
                 invoice.getTotalAmount(),
                 invoice.getClient().getId(),
                 invoice.getProducts().stream().map(p -> p.getId()).collect(Collectors.toList()),
-                invoice.getIsPaid()
+                invoice.getIsPaid(),
+                invoice.getStatus()
         );
     }
 

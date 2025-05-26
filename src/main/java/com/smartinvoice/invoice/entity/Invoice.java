@@ -35,6 +35,16 @@ public class Invoice {
     @Column(name = "is_paid", nullable = false)
     private Boolean isPaid;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private InvoiceStatus status = InvoiceStatus.PENDING;
+
+    @Column(name = "overdue_since")
+    private LocalDate overdueSince;
+
+    @Column(name = "paid_date")
+    private LocalDate paidDate;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     @JsonBackReference
@@ -52,5 +62,24 @@ public class Invoice {
     @CollectionTable(name = "invoice_reminders", joinColumns = @JoinColumn(name = "invoice_id"))
     @Column(name = "reminder_date")
     private Set<LocalDate> reminderSentDates = new HashSet<>();
+
+    public enum InvoiceStatus {
+        PENDING,       // Not yet due
+        PAID,          // Payment received
+        OVERDUE,       // Past due date
+        PARTIALLY_PAID // For future use
+    }
+
+    // Ensure status stays in sync with isPaid
+    @PreUpdate
+    @PrePersist
+    private void syncStatus() {
+        if (Boolean.TRUE.equals(isPaid)) {
+            this.status = InvoiceStatus.PAID;
+            this.paidDate = LocalDate.now();
+        } else if (this.status != InvoiceStatus.OVERDUE) {
+            this.status = InvoiceStatus.PENDING;
+        }
+    }
 
 }
