@@ -1,7 +1,10 @@
 package com.smartinvoice.invoice.controller;
 
+import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
+import com.smartinvoice.invoice.entity.Invoice;
+import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.invoice.service.InvoiceService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,6 +24,7 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private final InvoiceRepository invoiceRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -58,4 +63,9 @@ public class InvoiceController {
         invoiceService.emailInvoiceToClient(id);
     }
 
+    @PatchMapping("/{id}/mark-paid")
+    public ResponseEntity<Void> markAsPaid(@PathVariable Long id) {
+        invoiceService.markAsPaid(id);
+        return ResponseEntity.ok().build();
+    }
 }

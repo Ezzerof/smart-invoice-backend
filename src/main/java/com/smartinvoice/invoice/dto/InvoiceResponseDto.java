@@ -1,5 +1,7 @@
 package com.smartinvoice.invoice.dto;
 
+import com.smartinvoice.invoice.entity.Invoice;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,5 +13,7 @@ public record InvoiceResponseDto(
         double totalAmount,
         Long clientId,
         List<Long> productIds,
-        Boolean isPaid
+        Boolean isPaid,
+        Invoice.InvoiceStatus status
+
 ) {}

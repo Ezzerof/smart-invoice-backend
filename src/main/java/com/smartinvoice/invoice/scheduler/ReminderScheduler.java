@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -20,32 +21,19 @@ public class ReminderScheduler {
     private final PdfGeneratorService pdfGeneratorService;
     private final EmailService emailService;
 
-    @Scheduled(cron = "0 * * * * *") // every minute
+    @Scheduled(cron = "0 * * * * *") // every day at 9:00 AM (cron = "0 0 9 * * *")
     public void runReminderTask() {
-        List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidWithProductsAndReminders()
+        // Combine both overdue AND unpaid pending invoices
+        List<Invoice> invoicesToRemind = invoiceRepository.findAllUnpaidWithProductsAndReminders()
                 .stream()
+                .filter(invoice ->
+                        invoice.getStatus() == Invoice.InvoiceStatus.OVERDUE ||
+                                invoice.getStatus() == Invoice.InvoiceStatus.PENDING
+                )
                 .filter(this::shouldSendReminder)
                 .toList();
 
-        unpaidInvoices.forEach(invoice -> {
-            try {
-                byte[] pdf = pdfGeneratorService.generateInvoicePdf(invoice);
-
-                String email = invoice.getClient().getEmail();
-                String subject = "Payment Reminder: Invoice " + invoice.getInvoiceNumber();
-                String body = buildReminderBody(invoice);
-
-                emailService.sendInvoiceEmail(email, subject, body, pdf, "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
-                System.out.println("✅ Reminder email sent to: " + email);
-
-                // Track that we sent today
-                invoice.getReminderSentDates().add(LocalDate.now());
-                invoiceRepository.save(invoice);
-            } catch (Exception e) {
-                System.err.println("Failed to process invoice ID: " + invoice.getId());
-                e.printStackTrace();
-            }
-        });
+        invoicesToRemind.forEach(this::sendReminder);
     }
 
     private boolean shouldSendReminder(Invoice invoice) {
@@ -53,18 +41,61 @@ public class ReminderScheduler {
         LocalDate today = LocalDate.now();
         long daysDiff = ChronoUnit.DAYS.between(dueDate, today);
 
-        boolean isReminderDay = daysDiff == -3 || daysDiff == 1 || daysDiff == 5 || daysDiff == 10;
-        boolean alreadySentToday = invoice.getReminderSentDates().contains(today);
+        if (invoice.getReminderSentDates().contains(today)) {
+            return false;
+        }
 
-        return isReminderDay && !alreadySentToday;
+        // For PENDING invoices (before due date)
+        if (invoice.getStatus() == Invoice.InvoiceStatus.PENDING) {
+            return daysDiff == -3; // Only send 3 days before due date
+        }
+        // For OVERDUE invoices (after due date)
+        else if (invoice.getStatus() == Invoice.InvoiceStatus.OVERDUE) {
+            return Set.of(1L, 5L, 10L).contains(daysDiff);
+        }
+
+        return false;
     }
 
+    private void sendReminder(Invoice invoice) {
+        try {
+            byte[] pdf = pdfGeneratorService.generateInvoicePdf(invoice);
+            String email = invoice.getClient().getEmail();
+            String subject = buildReminderSubject(invoice);
+            String body = buildReminderBody(invoice);
+
+            emailService.sendInvoiceEmail(email, subject, body, pdf,
+                    "Invoice-" + invoice.getInvoiceNumber() + ".pdf");
+
+            // Track reminder
+            invoice.getReminderSentDates().add(LocalDate.now());
+            invoiceRepository.save(invoice);
+
+            System.out.println("✅ Reminder sent for invoice " + invoice.getInvoiceNumber());
+        } catch (Exception e) {
+            System.err.println("❌ Failed to process invoice ID: " + invoice.getId());
+            e.printStackTrace();
+        }
+    }
+
+    private String buildReminderSubject(Invoice invoice) {
+        return invoice.getStatus() == Invoice.InvoiceStatus.OVERDUE
+                ? "URGENT: Overdue Invoice " + invoice.getInvoiceNumber()
+                : "Upcoming Payment: Invoice " + invoice.getInvoiceNumber();
+    }
 
     private String buildReminderBody(Invoice invoice) {
-        return "Dear " + invoice.getClient().getName() + ",\n\n"
-                + "This is a reminder for your invoice #" + invoice.getInvoiceNumber()
-                + " due on " + invoice.getDueDate() + ". Please find the invoice attached.\n\n"
-                + "Best regards,\nSmartInvoice Team";
+        String base = "Dear " + invoice.getClient().getName() + ",\n\n" +
+                "Invoice #" + invoice.getInvoiceNumber() +
+                " (" + invoice.getTotalAmount() + " GBP) ";
+
+        if (invoice.getStatus() == Invoice.InvoiceStatus.OVERDUE) {
+            long daysOverdue = ChronoUnit.DAYS.between(invoice.getDueDate(), LocalDate.now());
+            return base + "is " + daysOverdue + " day(s) overdue. Please make payment immediately.\n\n";
+        } else {
+            return base + "is due in 3 days on " + invoice.getDueDate() + ".\n\n";
+        }
     }
 }
+
 
