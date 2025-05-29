@@ -39,19 +39,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, HttpSession session) {
+    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
         var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         session.setAttribute("username", username);
-        return "Login successful";
+        return ResponseEntity.ok(Map.of("message", "Login successful"));
     }
 
     @PostMapping("/logout")
-    public String logout(HttpSession session) {
+    public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
-        return "Logged out";
+        return ResponseEntity.ok(Map.of("message", "Logged out"));
     }
+
 }
