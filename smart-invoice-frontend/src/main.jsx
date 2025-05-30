@@ -1,63 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import './index.css';
 
+import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
 import Clients from './pages/Clients';
 import Products from './pages/Products';
 import Invoices from './pages/Invoices';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-import './index.css';
+function AppWrapper() {
+  const { user, loading } = useAuth();
 
-function Navbar() {
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await fetch('/logout', { method: 'POST' });
-    navigate('/login');
-  };
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
-    <nav className="bg-white shadow p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
-      <div className="space-x-4">
-        <Link to="/clients" className="text-gray-700 hover:text-gray-900">Clients</Link>
-        <Link to="/products" className="text-gray-700 hover:text-gray-900">Products</Link>
-        <Link to="/invoices" className="text-gray-700 hover:text-gray-900">Invoices</Link>
-      </div>
-      <button
-        onClick={handleLogout}
-        className="text-red-500 hover:text-red-700 font-semibold"
-      >
-        Logout
-      </button>
-    </nav>
+    <Routes>
+      <Route path="/login" element={user ? <Navigate to="/clients" replace /> : <Login />} />
+      <Route element={<AppLayout />}>
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/invoices" element={<Invoices />} />
+        <Route path="/" element={<Navigate to="/clients" replace />} />
+      </Route>
+      <Route path="*" element={<Navigate to={user ? "/clients" : "/login"} replace />} />
+    </Routes>
   );
 }
 
-function App() {
-  const isLoggedIn = true; // TODO: replace with real auth check
-
-  if (!isLoggedIn) return <Navigate to="/login" />;
-
-   return (
-      <>
-        {/* Show navbar only if logged in and not on login page */}
-        {isLoggedIn && location.pathname !== '/login' && <Navbar />}
-        <div className={isLoggedIn && location.pathname !== '/login' ? 'pt-16' : ''}>
-          <Routes>
-            <Route path="/clients" element={<Clients />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/invoices" element={<Invoices />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Navigate to="/clients" />} />
-          </Routes>
-        </div>
-      </>
-    );
-  }
-
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppWrapper />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

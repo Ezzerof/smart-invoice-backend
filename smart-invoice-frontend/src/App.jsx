@@ -1,56 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import PrivateRoute from './components/PrivateRoute';
-import Navbar from './components/Navbar';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Clients from './pages/Clients';
+import Dashboard from './pages/Dashboard';
+import api from './api/api';
 
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
 
-function PrivateRoute({ children }) {
-  const auth = useAuth();
-  if (auth.loading) return <div>Loading...</div>;
-  return auth.user ? children : <Navigate to="/login" />;
-}
+  useEffect(() => {
+    api.get('/auth/me')
+      .then(res => setUser(res.data.username))
+      .catch(() => setUser(null))
+      .finally(() => setChecking(false));
+  }, []);
 
-function App() {
+  if (checking) return <p>Loading...</p>;
+
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/clients"
-            element={
-              <PrivateRoute>
-                <Clients />
-              </PrivateRoute>
-            }
-          />
-          <Route
-              path="/products"
-              element={
-                <PrivateRoute>
-                  <Products />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/invoices"
-              element={
-                <PrivateRoute>
-                  <Invoices />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <Routes>
+      <Route path="/login" element={<Login setUser={setUser} />} />
+      <Route
+        path="/"
+        element={
+          user ? <Dashboard user={user} /> : <Navigate to="/login" />
+        }
+      />
+    </Routes>
   );
-}
+};
 
 export default App;

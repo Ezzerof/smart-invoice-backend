@@ -1,31 +1,49 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext(null);
+// Initialize with default values
+const AuthContext = createContext({
+  user: null,
+  login: () => {},
+  logout: () => {},
+  loading: true
+});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is already logged in on mount
-  useEffect(() => {
-    // Call backend endpoint to get current user or session status
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error('Not logged in');
-      })
-      .then(data => {
+  const checkSession = async () => {
+    try {
+      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
         setUser(data.username);
-      })
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+      }
+    } catch (error) {
+      console.error('Session check error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkSession();
   }, []);
 
-  const login = (username) => setUser(username);
+  const login = async (username) => {
+    setUser(username);
+  };
 
   const logout = async () => {
-    await fetch('/logout', { method: 'POST', credentials: 'include' });
-    setUser(null);
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST', 
+        credentials: 'include' 
+      });
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (
@@ -36,5 +54,9 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

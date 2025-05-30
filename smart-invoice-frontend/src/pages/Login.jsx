@@ -1,102 +1,75 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { login } from '../api/api';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function Login() {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const auth = useAuth();
   const navigate = useNavigate();
-
-  const validate = () => {
-    const errs = {};
-    if (!username.trim()) errs.username = 'Username is required';
-    if (!password.trim()) errs.password = 'Password is required';
-    return errs;
-  };
+  const { login: authLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errs = validate();
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-
     setLoading(true);
+    setError('');
+
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString(),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        setErrors({ form: 'Invalid username or password' });
-        setLoading(false);
-        return;
+      const response = await login(username, password);
+      
+      if (response.ok) {
+        const data = await response.json();
+        authLogin(data.username);
+        navigate('/clients');
+      } else {
+        setError('Invalid credentials');
       }
-
-      auth.login(username);
-      navigate('/clients'); // Redirect to protected page after login
-
-    } catch {
-      setErrors({ form: 'Network error' });
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4">
-      {/* Placeholder for logo */}
-      <div className="mb-8">
-        <img src="/logo.png" alt="Logo" className="h-24 mx-auto" />
-      </div>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded shadow">
-              {errors.form && <p className="text-red-500 text-center mb-4">{errors.form}</p>}
-              <label htmlFor="username" className="block font-semibold mb-1">Username</label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                disabled={loading}
-                className={`w-full border rounded px-3 py-2 mb-4 ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.username && <p className="text-red-500 mb-4">{errors.username}</p>}
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h2>Login</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSubmit} style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        gap: '1rem' 
+      }}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{ padding: '0.5rem', width: '200px' }}
+          disabled={loading}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ padding: '0.5rem', width: '200px' }}
+          disabled={loading}
+        />
+        <button 
+          type="submit" 
+          style={{ padding: '0.5rem 1rem' }}
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+    </div>
+  );
+};
 
-              <label htmlFor="password" className="block font-semibold mb-1">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                disabled={loading}
-                className={`w-full border rounded px-3 py-2 mb-6 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.password && <p className="text-red-500 mb-6">{errors.password}</p>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition-colors ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-            </form>
-          </div>
-        );
-      }
+export default Login;
