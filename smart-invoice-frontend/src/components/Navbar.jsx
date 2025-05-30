@@ -1,31 +1,24 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { logout } from '../api/api';
 
-export default function Navbar() {
-  const { user, logout } = useAuth();
+const Navbar = () => {
   const navigate = useNavigate();
 
-  if (!user) return null;
-
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
+    window.location.reload();
   };
 
   return (
-    <nav className="w-full bg-gray-900 text-white py-3 px-6 flex justify-between items-center">
-      <div className="space-x-4">
-        <Link to="/clients" className="hover:underline">Clients</Link>
-        <Link to="/products" className="hover:underline">Products</Link>
-        <Link to="/invoices" className="hover:underline">Invoices</Link>
-      </div>
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold"
-      >
-        Logout
-      </button>
+    <nav>
+      <Link to="/clients">Clients</Link>
+      <Link to="/products">Products</Link>
+      <Link to="/invoices">Invoices</Link>
+      <button onClick={handleLogout}>Logout</button>
     </nav>
   );
-}
+};
+
+export default Navbar;
