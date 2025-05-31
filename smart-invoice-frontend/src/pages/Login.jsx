@@ -9,7 +9,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login: authLogin } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,14 +17,11 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await login(username, password);
-      
-      if (response.ok) {
-        const data = await response.json();
-        authLogin(data.username);
+      const success = await login(username, password);
+      if (success) {
         navigate('/clients');
       } else {
-        setError('Invalid credentials');
+        setError('Invalid username or password');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -71,5 +68,6 @@ const Login = () => {
     </div>
   );
 };
+
 
 export default Login;
