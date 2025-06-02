@@ -1,3 +1,4 @@
+
 const API_BASE = "http://localhost:8080";
 
 export const login = async (username, password) => {
@@ -32,16 +33,20 @@ export const getCurrentUser = async () => {
     const response = await fetch(`${API_BASE}/api/auth/me`, {
       credentials: "include",
     });
+
+    if (response.status === 401) {
+      return { ok: false, status: 401 };
+    }
+    
+    if (!response.ok) throw new Error('Failed to fetch user');
+
     return {
-      ok: response.ok,
-      data: await response.json().catch(() => null)
+      ok: true,
+      data: await response.json()
     };
   } catch (error) {
-    console.error('API getCurrentUser error:', error);
-    return {
-      ok: false,
-      error: 'Network error'
-    };
+    console.error('API Error:', error);
+    return { ok: false, error: error.message };
   }
 };
 
