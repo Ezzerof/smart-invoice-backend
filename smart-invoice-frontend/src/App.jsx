@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import api from './api/api';
+import { AuthProvider } from './contexts/AuthContext';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -29,5 +30,6 @@ const App = () => {
     </Routes>
   );
 };
+
 
 export default App;
