@@ -1,5 +1,6 @@
 package com.smartinvoice.auth.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -25,11 +26,20 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.disable())
-                .httpBasic(Customizer.withDefaults());
-
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/auth/login")        // ← your JS hits this URL
+                        .successHandler((req, res, auth) -> {         // 200 & JSON on success
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"username\":\"" + auth.getName() + "\"}");
+                        })
+                        .failureHandler((req, res, ex) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Bad credentials"))
+                        .permitAll()
+                )
+                .httpBasic(httpBasic -> httpBasic.disable());      // keep popup OFF
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

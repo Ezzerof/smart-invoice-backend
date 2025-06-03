@@ -2,6 +2,7 @@ package com.smartinvoice.auth.controller;
 
 import com.smartinvoice.auth.entity.User;
 import com.smartinvoice.auth.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,35 +25,33 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<?> me(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        String username = authentication.getName();
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-
-        return optionalUser
-                .map(user -> ResponseEntity.ok().body(Map.of("username", user.getUsername())))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found")));
-
+        return ResponseEntity.ok(Map.of("username", authentication.getName()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
-        var authentication = authenticationManager.authenticate(
+    public ResponseEntity<?> login(@RequestParam String username,
+                                   @RequestParam String password,
+                                   HttpServletRequest request) {
+
+        Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        session.setAttribute("username", username);
-        return ResponseEntity.ok(Map.of("message", "Login successful"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        request.getSession(true);
+
+        return ResponseEntity.ok(Map.of("username", auth.getName()));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
-        session.invalidate();
-        return ResponseEntity.ok(Map.of("message", "Logged out"));
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        request.getSession(false).invalidate();
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok().build();
     }
 
 }
