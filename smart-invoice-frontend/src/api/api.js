@@ -34,6 +34,10 @@ export const getCurrentUser = async () => {
       credentials: "include",
     });
 
+    const isJson = response.headers
+    .get("content-type")
+    ?.includes("application/json");
+
     if (response.status === 401) {
       return { ok: false, status: 401 };
     }
@@ -42,7 +46,7 @@ export const getCurrentUser = async () => {
 
     return {
       ok: true,
-      data: await response.json()
+      data: isJson ? await response.json() : null,
     };
   } catch (error) {
     console.error('API Error:', error);
