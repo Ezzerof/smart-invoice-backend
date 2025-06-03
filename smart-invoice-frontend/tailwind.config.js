@@ -5,7 +5,14 @@ module.exports = {
     "./public/index.html"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        zinc: {
+          800: '#27272a',
+          900: '#18181b',
+        },
+      },
+    },
   },
   plugins: [],
 }

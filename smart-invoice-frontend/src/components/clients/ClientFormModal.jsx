@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '../../api/clientApi';
 
 export default function ClientFormModal({ isOpen, onClose, onClientCreated }) {
-  // State for form data with all required client fields
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,30 +11,12 @@ export default function ClientFormModal({ isOpen, onClose, onClientCreated }) {
     country: '',
     postcode: ''
   });
-  
-  // Loading state for form submission
   const [loading, setLoading] = useState(false);
-  
-  // Error state for displaying API errors
   const [error, setError] = useState(null);
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null); // Reset error on new submission
-    
-    try {
-      // Call API to create client
-      const newClient = await createClient(formData);
-      
-      // Notify parent component about the new client
-      onClientCreated(newClient);
-      
-      // Close the modal
-      onClose();
-      
-      // Reset form after successful submission
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
       setFormData({
         name: '',
         email: '',
@@ -45,165 +26,96 @@ export default function ClientFormModal({ isOpen, onClose, onClientCreated }) {
         country: '',
         postcode: ''
       });
+      setError(null);
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => document.body.classList.remove('modal-open');
+  }, [isOpen]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const newClient = await createClient(formData);
+      onClientCreated(newClient);
+      onClose();
     } catch (err) {
-      // Display error to user
-      setError(err.message || 'Failed to create client');
+      setError(err.response?.data?.message || err.message || 'Failed to create client');
     } finally {
-      // Reset loading state regardless of success/failure
       setLoading(false);
     }
   };
 
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Don't render if modal isn't open
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Add New Client</h2>
+    <div className="modal-overlay">
+      <div className="modal-content-dark"> {/* Using the same dark modal style */}
+        <h2 className="text-xl font-semibold mb-4 text-white">Add New Client</h2>
         
-        {/* Display error message if exists */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="mb-4 p-3 bg-red-900/20 text-red-400 rounded border border-red-800">
             {error}
           </div>
         )}
         
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-4 mb-4">
-            {/* Name Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* Email Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="john@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* Company Name Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Company Name</label>
-              <input
-                type="text"
-                name="companyName"
-                placeholder="Acme Inc."
-                value={formData.companyName}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* Address Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                placeholder="123 Main St"
-                value={formData.address}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* City Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">City</label>
-              <input
-                type="text"
-                name="city"
-                placeholder="New York"
-                value={formData.city}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* Country Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Country</label>
-              <input
-                type="text"
-                name="country"
-                placeholder="United States"
-                value={formData.country}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            {/* Postcode Field */}
-            <div>
-              <label className="block text-gray-700 mb-1">Postal Code</label>
-              <input
-                type="text"
-                name="postcode"
-                placeholder="10001"
-                value={formData.postcode}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            {[
+              { id: 'name', label: 'Full Name', type: 'text', placeholder: 'John Doe' },
+              { id: 'email', label: 'Email', type: 'email', placeholder: 'john@example.com' },
+              { id: 'companyName', label: 'Company Name', type: 'text', placeholder: 'Acme Inc.' },
+              { id: 'address', label: 'Address', type: 'text', placeholder: '123 Main St' },
+              { id: 'city', label: 'City', type: 'text', placeholder: 'New York' },
+              { id: 'country', label: 'Country', type: 'text', placeholder: 'United States' },
+              { id: 'postcode', label: 'Postal Code', type: 'text', placeholder: '10001' },
+            ].map((field) => (
+              <div key={field.id}>
+                <label htmlFor={field.id} className="block text-sm font-medium text-zinc-300 mb-1">
+                  {field.label}
+                </label>
+                <input
+                  id={field.id}
+                  name={field.id}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  value={formData[field.id]}
+                  onChange={(e) => setFormData({...formData, [field.id]: e.target.value})}
+                  className="w-full bg-zinc-800 p-2 rounded border border-zinc-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-white"
+                  required
+                />
+              </div>
+            ))}
           </div>
           
-          {/* Form Actions */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-100"
               disabled={loading}
+              className="px-4 py-2 text-sm rounded border border-zinc-600 text-zinc-300 hover:bg-zinc-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-300"
+              className="px-4 py-2 text-sm rounded bg-indigo-600 text-white hover:bg-indigo-700 border border-indigo-700"
             >
               {loading ? (
-                <>
-                  <span className="inline-block animate-spin mr-2">↻</span>
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   Saving...
-                </>
-              ) : 'Save Client'}
+                </span>
+              ) : 'Add Client'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
+}
