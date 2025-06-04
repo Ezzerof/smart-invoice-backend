@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/api';
+import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,29 +15,39 @@ const Navbar = () => {
     }
   };
 
-  return (
+   return (
     <nav className="bg-zinc-800 px-6 py-3 border-b border-zinc-700">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-6"> {/* Changed from space-x-6 to gap-6 */}
-          <Link 
+      <div className="flex justify-between items-center">
+        <div className="navbar flex">
+          <NavLink 
             to="/clients" 
-            className="text-white hover:text-indigo-300 px-3 py-2 rounded-md hover:bg-zinc-700/50 transition-colors text-sm font-medium"
+            className={({ isActive }) => 
+              `px-3 py-2 rounded-md text-sm font-medium transition-colors
+              ${isActive ? 'bg-zinc-700/50 text-indigo-300' : 'text-white hover:text-indigo-300 hover:bg-zinc-700/50'}`
+            }
           >
             Clients
-          </Link>
-          <Link 
+          </NavLink>
+          <NavLink 
             to="/products" 
-            className="text-white hover:text-indigo-300 px-3 py-2 rounded-md hover:bg-zinc-700/50 transition-colors text-sm font-medium"
+            className={({ isActive }) => 
+              `px-3 py-2 rounded-md text-sm font-medium transition-colors
+              ${isActive ? 'bg-zinc-700/50 text-indigo-300' : 'text-white hover:text-indigo-300 hover:bg-zinc-700/50'}`
+            }
           >
             Products
-          </Link>
-          <Link 
+          </NavLink>
+          <NavLink 
             to="/invoices" 
-            className="text-white hover:text-indigo-300 px-3 py-2 rounded-md hover:bg-zinc-700/50 transition-colors text-sm font-medium"
+            className={({ isActive }) => 
+              `px-3 py-2 rounded-md text-sm font-medium transition-colors
+              ${isActive ? 'bg-zinc-700/50 text-indigo-300' : 'text-white hover:text-indigo-300 hover:bg-zinc-700/50'}`
+            }
           >
             Invoices
-          </Link>
+          </NavLink>
         </div>
+        
         <button
           onClick={handleLogout}
           className="text-white hover:text-rose-300 px-3 py-2 rounded-md hover:bg-zinc-700/50 transition-colors text-sm font-medium"
