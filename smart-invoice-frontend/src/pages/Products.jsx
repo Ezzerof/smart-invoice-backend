@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
+import ProductFormModal from "../components/products/ProductFormModal";
+import ProductEditModal from "../components/products/ProductEditModal";
+import {
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  fetchProducts,
+} from "../api/productApi";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [isCreateOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
+
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadProducts = async () => {
       try {
-        const res = await fetch("/api/products");
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
+        const data = await fetchProducts();
         setProducts(data);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -20,17 +29,27 @@ export default function Products() {
       }
     };
 
-    fetchProducts();
+    loadProducts();
   }, []);
 
   const handleDelete = async (product) => {
     if (!window.confirm(`Delete ${product.name}?`)) return;
     try {
-      await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+      await deleteProduct(product.id);
       setProducts((cur) => cur.filter((p) => p.id !== product.id));
     } catch (e) {
       alert("Failed to delete product");
     }
+  };
+
+  const handleAdd = (product) => {
+    setProducts((cur) => [...cur, product]);
+  };
+
+  const handleUpdate = (updated) => {
+    setProducts((cur) =>
+      cur.map((p) => (p.id === updated.id ? updated : p))
+    );
   };
 
   return (
@@ -38,7 +57,7 @@ export default function Products() {
       <header className="flex items-center justify-between py-4">
         <h1 className="text-3xl font-bold tracking-tight text-white">Products</h1>
         <button
-          onClick={() => alert("TODO: open product creation modal")}
+          onClick={() => setCreateOpen(true)}
           className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white"
         >
           + Add Product
@@ -77,12 +96,12 @@ export default function Products() {
                 >
                   <td className="px-6 py-4 text-center text-white font-medium">{p.name}</td>
                   <td className="px-6 py-4 text-center text-zinc-300 min-w-[200px]">{p.description}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">£{p.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300">{p.currency} {p.price.toFixed(2)}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">{p.quantity}</td>
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-4 pr-4">
                       <button
-                        onClick={() => alert("TODO: open edit modal")}
+                        onClick={() => setEditTarget(p)}
                         className="px-4 py-1.5 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
                       >
                         Edit
@@ -101,6 +120,20 @@ export default function Products() {
           </table>
         </div>
       )}
+
+      {/* Modals */}
+      <ProductFormModal
+        isOpen={isCreateOpen}
+        onClose={() => setCreateOpen(false)}
+        onProductCreated={handleAdd}
+      />
+
+      <ProductEditModal
+        isOpen={!!editTarget}
+        product={editTarget}
+        onClose={() => setEditTarget(null)}
+        onUpdated={handleUpdate}
+      />
     </section>
   );
 }
