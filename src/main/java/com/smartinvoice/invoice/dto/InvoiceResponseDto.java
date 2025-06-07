@@ -7,6 +7,7 @@ import java.util.List;
 
 public record InvoiceResponseDto(
         Long id,
+        String clientName,
         String invoiceNumber,
         LocalDate issueDate,
         LocalDate dueDate,
