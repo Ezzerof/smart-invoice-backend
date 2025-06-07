@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import InvoiceModal from '../components/invoices/InvoiceModal';
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:8080/api/invoices', {
       credentials: 'include',
     })
       .then((res) => res.json())
-      .then((data) => setInvoices(data))
+      .then(setInvoices)
       .catch((err) => console.error("Failed to load invoices", err))
       .finally(() => setLoading(false));
   }, []);
+
+  const openInvoiceModal = (id) => {
+    fetch(`http://localhost:8080/api/invoices/${id}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then(setSelectedInvoice)
+      .catch(err => console.error("Failed to fetch invoice details", err));
+  };
 
   if (loading) return <p>Loading invoices...</p>;
 
@@ -42,15 +53,24 @@ export default function Invoices() {
                 <td className="p-2">£{invoice.totalAmount}</td>
                 <td className="p-2">{invoice.paid ? "Yes" : "No"}</td>
                 <td className="p-2">
-                  {/* Placeholder for future buttons */}
-                  <button className="text-blue-400 hover:underline mr-2">View</button>
-                  <button className="text-red-400 hover:underline">Delete</button>
+                  <button
+                    className="text-blue-400 hover:underline mr-2"
+                    onClick={() => openInvoiceModal(invoice.id)}
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
+      <InvoiceModal
+        isOpen={!!selectedInvoice}
+        invoice={selectedInvoice}
+        onClose={() => setSelectedInvoice(null)}
+      />
     </div>
   );
 }
