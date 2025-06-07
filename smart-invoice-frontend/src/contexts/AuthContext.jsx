@@ -10,11 +10,16 @@ export const AuthProvider = ({ children }) => {
   const checkSession = async () => {
     try {
       const { ok, data } = await getCurrentUser();
-      if (ok && data) {
+      if (ok && data && data.username) {
         setUser(data.username);
+      } else {
+        setUser(null);
       }
+      console.log("Session check → ok:", ok, "data:", data);
+
     } catch (error) {
       console.error('Session check error:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }

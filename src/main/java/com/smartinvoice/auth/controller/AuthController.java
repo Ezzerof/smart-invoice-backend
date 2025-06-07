@@ -1,6 +1,5 @@
 package com.smartinvoice.auth.controller;
 
-import com.smartinvoice.auth.entity.User;
 import com.smartinvoice.auth.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -11,10 +10,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,7 +41,9 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(auth);
-        request.getSession(true);
+        HttpSession session = request.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
 
         return ResponseEntity.ok(Map.of("username", auth.getName()));
     }
