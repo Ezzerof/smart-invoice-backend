@@ -100,6 +100,7 @@ public class InvoiceService {
     private InvoiceResponseDto mapToDto(Invoice invoice) {
         return new InvoiceResponseDto(
                 invoice.getId(),
+                invoice.getClient().getName(),
                 invoice.getInvoiceNumber(),
                 invoice.getIssueDate(),
                 invoice.getDueDate(),
