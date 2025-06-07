@@ -24,11 +24,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/logout").permitAll()
+                        .requestMatchers("/api/auth/me").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/api/auth/login")        // ← your JS hits this URL
-                        .successHandler((req, res, auth) -> {         // 200 & JSON on success
+                        .loginProcessingUrl("/api/auth/login")
+                        .successHandler((req, res, auth) -> {
                             res.setContentType("application/json");
                             res.getWriter().write("{\"username\":\"" + auth.getName() + "\"}");
                         })
@@ -36,7 +37,7 @@ public class SecurityConfig {
                                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Bad credentials"))
                         .permitAll()
                 )
-                .httpBasic(httpBasic -> httpBasic.disable());      // keep popup OFF
+                .httpBasic(httpBasic -> httpBasic.disable());
         return http.build();
     }
 

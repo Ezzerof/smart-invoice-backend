@@ -6,5 +6,9 @@ export default function PrivateRoute({ children }) {
 
   if (loading) return <div>Loading...</div>;
 
-  return user ? children : <Navigate to="/login" />;
-}
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
