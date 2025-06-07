@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
       }
-      console.log("Session check → ok:", ok, "data:", data);
 
     } catch (error) {
       console.error('Session check error:', error);
