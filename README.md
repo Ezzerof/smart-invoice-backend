@@ -136,10 +136,10 @@ Run tests with:
 
  ✅Mark invoices as paid/unpaid
 
- ⬜Scheduled reminders
+ ✅Scheduled reminders
 
- ⬜Export as Excel/CSV
+ ✅Export as Excel/CSV
 
- ⬜Role-based authentication (Spring Security)
+ ✅Authentication (Spring Security)
 
  ⬜Optional web interface (React or Angular)
