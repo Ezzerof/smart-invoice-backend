@@ -17,10 +17,6 @@ function AppWrapper() {
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
-  console.log("ROUTE DEBUG", { user, loading, location: window.location.pathname });
-
-  console.log('Auth loading:', loading, 'User:', user);
-
 
   return (
     <Routes>
