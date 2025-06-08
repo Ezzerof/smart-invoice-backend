@@ -5,11 +5,17 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [search, setSearch] = useState('');
+  const [isPaid, setIsPaid] = useState('');
 
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8080/api/invoices', {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (isPaid !== '') params.append("isPaid", isPaid);
+
+      const res = await fetch(`http://localhost:8080/api/invoices?${params.toString()}`, {
         credentials: 'include',
       });
       const data = await res.json();
@@ -23,7 +29,7 @@ export default function Invoices() {
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [search, isPaid]);
 
   const openInvoiceModal = (id) => {
     fetch(`http://localhost:8080/api/invoices/${id}`, {
@@ -66,6 +72,32 @@ export default function Invoices() {
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold mb-4">Invoices</h1>
+
+      <div className="mb-4 flex flex-col md:flex-row items-center gap-4">
+        <input
+          type="text"
+          placeholder="Search by invoice number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white w-full md:w-1/2"
+        />
+        <select
+          value={isPaid}
+          onChange={(e) => setIsPaid(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+        >
+          <option value="">All</option>
+          <option value="true">Paid</option>
+          <option value="false">Unpaid</option>
+        </select>
+        <button
+          onClick={fetchInvoices}
+          className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
+        >
+          Apply Filters
+        </button>
+      </div>
+
       {invoices.length === 0 ? (
         <p>No invoices found.</p>
       ) : (
@@ -140,4 +172,5 @@ export default function Invoices() {
       />
     </div>
   );
+
 }
