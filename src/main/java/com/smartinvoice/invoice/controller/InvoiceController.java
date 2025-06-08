@@ -1,12 +1,10 @@
 package com.smartinvoice.invoice.controller;
 
-import com.smartinvoice.exception.ResourceNotFoundException;
+import com.smartinvoice.invoice.dto.InvoiceSearchFilter;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
-import com.smartinvoice.invoice.entity.Invoice;
 import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.invoice.service.InvoiceService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,8 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -33,9 +29,12 @@ public class InvoiceController {
     }
 
     @GetMapping
-    public List<InvoiceResponseDto> getAllInvoices() {
-        return invoiceService.getAllInvoices();
+    public List<InvoiceResponseDto> getAllInvoices(
+            @ModelAttribute InvoiceSearchFilter filter
+    ) {
+        return invoiceService.getFilteredInvoices(filter);
     }
+
 
     @GetMapping("/{id}")
     public InvoiceResponseDto getInvoiceById(@PathVariable Long id) {

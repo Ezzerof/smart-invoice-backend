@@ -4,6 +4,7 @@ import com.smartinvoice.audit.service.AuditLogService;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
 import com.smartinvoice.export.dto.InvoiceFilterRequest;
+import com.smartinvoice.invoice.dto.InvoiceSearchFilter;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
 import com.smartinvoice.invoice.email.EmailService;
@@ -66,11 +67,26 @@ public class InvoiceService {
         return mapToDto(saved);
     }
 
-    public List<InvoiceResponseDto> getAllInvoices() {
-        return invoiceRepository.findAll().stream()
+    public List<InvoiceResponseDto> getFilteredInvoices(InvoiceSearchFilter filter) {
+        Specification<Invoice> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filter.search() != null && !filter.search().isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("invoiceNumber")), "%" + filter.search().toLowerCase() + "%"));
+            }
+            if (filter.isPaid() != null) {
+                predicates.add(cb.equal(root.get("isPaid"), filter.isPaid()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return invoiceRepository.findAll(spec)
+                .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
 
     public InvoiceResponseDto getInvoiceById(Long id) {
         Invoice invoice = invoiceRepository.findById(id)
