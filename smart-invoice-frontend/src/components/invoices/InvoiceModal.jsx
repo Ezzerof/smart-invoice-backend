@@ -22,6 +22,7 @@ export default function InvoiceModal({ isOpen, invoice, onClose }) {
 
         <div className="space-y-2 text-sm text-zinc-300">
           <p><strong>Client:</strong> {invoice.clientName}</p>
+          <p><strong>Email:</strong> {invoice.email}</p>
           <p><strong>Date:</strong> {invoice.issueDate}</p>
           <p><strong>Total:</strong> £{invoice.totalAmount}</p>
           <p><strong>Paid:</strong> {invoice.paid ? 'Yes' : 'No'}</p>
