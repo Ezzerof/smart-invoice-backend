@@ -25,6 +25,27 @@ export default function Invoices() {
       .catch(err => console.error("Failed to fetch invoice details", err));
   };
 
+  const deleteInvoice = async (id) => {
+    await fetch(`http://localhost:8080/api/invoices/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  };
+
+  const markAsPaid = async (id) => {
+    await fetch(`http://localhost:8080/api/invoices/${id}/mark-paid`, {
+      method: 'PATCH',
+      credentials: 'include',
+    });
+  };
+
+  const sendInvoiceEmail = async (id) => {
+    await fetch(`http://localhost:8080/api/invoices/${id}/email`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  };
+
   if (loading) return <p>Loading invoices...</p>;
 
   return (
@@ -52,12 +73,47 @@ export default function Invoices() {
                 <td className="p-2">{invoice.issueDate}</td>
                 <td className="p-2">£{invoice.totalAmount}</td>
                 <td className="p-2">{invoice.paid ? "Yes" : "No"}</td>
-                <td className="p-2">
+                <td className="p-2 flex flex-wrap gap-2 text-sm">
                   <button
-                    className="text-blue-400 hover:underline mr-2"
+                    className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => openInvoiceModal(invoice.id)}
                   >
                     View
+                  </button>
+                  {!invoice.paid && (
+                    <button
+                      className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+                      onClick={async () => {
+                        await markAsPaid(invoice.id);
+                        setInvoices(prev =>
+                          prev.map(i =>
+                            i.id === invoice.id ? { ...i, paid: true } : i
+                          )
+                        );
+                      }}
+                    >
+                      Mark as Paid
+                    </button>
+                  )}
+                  <button
+                    className="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white"
+                    onClick={async () => {
+                      await sendInvoiceEmail(invoice.id);
+                      alert("Invoice sent!");
+                    }}
+                  >
+                    Email
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
+                    onClick={async () => {
+                      if (confirm("Are you sure you want to delete this invoice?")) {
+                        await deleteInvoice(invoice.id);
+                        setInvoices(prev => prev.filter(i => i.id !== invoice.id));
+                      }
+                    }}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>

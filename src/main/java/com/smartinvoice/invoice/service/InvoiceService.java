@@ -101,6 +101,7 @@ public class InvoiceService {
         return new InvoiceResponseDto(
                 invoice.getId(),
                 invoice.getClient().getName(),
+                invoice.getClient().getEmail(),
                 invoice.getInvoiceNumber(),
                 invoice.getIssueDate(),
                 invoice.getDueDate(),

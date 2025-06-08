@@ -5,10 +5,8 @@ export const fetchClients = async () => {
     const response = await fetch(`${API_BASE}/api/clients`, {
       credentials: 'include'
     });
-    console.log('Response status:', response.status);
     if (!response.ok) throw new Error(`Failed to fetch clients: ${response.status}`);
     const json = await response.json();
-    console.log('Client data received:', json);
     return json;
   } catch (error) {
     console.error('Error fetching clients:', error);

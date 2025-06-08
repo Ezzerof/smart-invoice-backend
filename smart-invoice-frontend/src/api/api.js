@@ -2,7 +2,6 @@
 const API_BASE = "http://localhost:8080";
 
 export const login = async (username, password) => {
-  console.log('Attempting login with:', username); // Debug log
   try {
     const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
