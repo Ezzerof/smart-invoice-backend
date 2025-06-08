@@ -6,14 +6,23 @@ export default function Invoices() {
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
+  const fetchInvoices = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:8080/api/invoices', {
+        credentials: 'include',
+      });
+      const data = await res.json();
+      setInvoices(data);
+    } catch (err) {
+      console.error("Failed to load invoices", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch('http://localhost:8080/api/invoices', {
-      credentials: 'include',
-    })
-      .then((res) => res.json())
-      .then(setInvoices)
-      .catch((err) => console.error("Failed to load invoices", err))
-      .finally(() => setLoading(false));
+    fetchInvoices();
   }, []);
 
   const openInvoiceModal = (id) => {
@@ -37,6 +46,12 @@ export default function Invoices() {
       method: 'PATCH',
       credentials: 'include',
     });
+
+    const res = await fetch('http://localhost:8080/api/invoices', {
+      credentials: 'include',
+    });
+    const updated = await res.json();
+    setInvoices(updated);
   };
 
   const sendInvoiceEmail = async (id) => {
@@ -72,7 +87,7 @@ export default function Invoices() {
                 <td className="p-2">{invoice.clientName}</td>
                 <td className="p-2">{invoice.issueDate}</td>
                 <td className="p-2">£{invoice.totalAmount}</td>
-                <td className="p-2">{invoice.paid ? "Yes" : "No"}</td>
+                <td className="p-2">{invoice.isPaid ? "Yes" : "No"}</td>
                 <td className="p-2 flex flex-wrap gap-2 text-sm">
                   <button
                     className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
@@ -80,16 +95,12 @@ export default function Invoices() {
                   >
                     View
                   </button>
-                  {!invoice.paid && (
+                  {!invoice.isPaid && (
                     <button
                       className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
                       onClick={async () => {
                         await markAsPaid(invoice.id);
-                        setInvoices(prev =>
-                          prev.map(i =>
-                            i.id === invoice.id ? { ...i, paid: true } : i
-                          )
-                        );
+                        await fetchInvoices();
                       }}
                     >
                       Mark as Paid

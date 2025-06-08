@@ -94,6 +94,8 @@ public class InvoiceService {
 
         invoice.setStatus(Invoice.InvoiceStatus.PAID);
         invoice.setPaidDate(LocalDate.now());
+        invoice.setIsPaid(true);
+
         invoiceRepository.save(invoice);
     }
 
