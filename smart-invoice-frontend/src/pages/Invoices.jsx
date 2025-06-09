@@ -117,6 +117,7 @@ export default function Invoices() {
           <thead>
             <tr className="bg-zinc-800">
               <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Invoice No</th>
               <th className="px-4 py-2 text-left">Client</th>
               <th className="px-4 py-2 text-left">Date</th>
               <th className="px-4 py-2 text-left">Total</th>
@@ -128,6 +129,7 @@ export default function Invoices() {
             {invoices.map((invoice) => (
               <tr key={invoice.id} className="border-t border-zinc-400">
                 <td className="p-2">{invoice.id}</td>
+                <td className="p-2">{invoice.invoiceNumber}</td>
                 <td className="p-2">{invoice.clientName}</td>
                 <td className="p-2">{invoice.issueDate}</td>
                 <td className="p-2">£{invoice.totalAmount}</td>
