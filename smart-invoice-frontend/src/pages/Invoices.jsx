@@ -71,50 +71,62 @@ export default function Invoices() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Invoices</h1>
+      <header className="flex items-center justify-between py-4">
+        <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
+      </header>
 
-      <div className="mb-4 flex flex-col md:flex-row items-center gap-4">
-        <input
-          type="text"
-          placeholder="Search by invoice number..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white w-full md:w-1/2"
-        />
-        <select
-          value={isPaid}
-          onChange={(e) => setIsPaid(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
-        >
-          <option value="">All</option>
-          <option value="true">Paid</option>
-          <option value="false">Unpaid</option>
-        </select>
-        <button
-          onClick={fetchInvoices}
-          className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
-        >
-          Apply Filters
-        </button>
+      <div className="mb-6 flex flex-col md:flex-row md:items-end gap-4">
+        <div className="flex flex-col w-full md:w-1/2">
+          <label className="mb-1 text-sm font-medium text-white">Search</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search by invoice number..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+            />
+            <button
+              onClick={fetchInvoices}
+              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-1 text-sm font-medium text-white">Payment Status</label>
+          <select
+            value={isPaid}
+            onChange={(e) => setIsPaid(e.target.value)}
+            className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+          >
+            <option value="">All</option>
+            <option value="true">Paid</option>
+            <option value="false">Unpaid</option>
+          </select>
+        </div>
       </div>
+
 
       {invoices.length === 0 ? (
         <p>No invoices found.</p>
       ) : (
-        <table className="w-full table-auto border border-zinc-700">
+        <table className="w-full table-auto border border-zinc-400">
           <thead>
             <tr className="bg-zinc-800">
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Client</th>
-              <th className="p-2 text-left">Date</th>
-              <th className="p-2 text-left">Total</th>
-              <th className="p-2 text-left">Paid</th>
-              <th className="p-2 text-left">Actions</th>
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Client</th>
+              <th className="px-4 py-2 text-left">Date</th>
+              <th className="px-4 py-2 text-left">Total</th>
+              <th className="px-4 py-2 text-left">Paid</th>
+              <th className="px-4 py-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {invoices.map((invoice) => (
-              <tr key={invoice.id} className="border-t border-zinc-700">
+              <tr key={invoice.id} className="border-t border-zinc-400">
                 <td className="p-2">{invoice.id}</td>
                 <td className="p-2">{invoice.clientName}</td>
                 <td className="p-2">{invoice.issueDate}</td>
