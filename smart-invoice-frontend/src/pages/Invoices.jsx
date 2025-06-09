@@ -113,70 +113,81 @@ export default function Invoices() {
       {invoices.length === 0 ? (
         <p>No invoices found.</p>
       ) : (
-        <table className="w-full table-auto border border-zinc-400">
-          <thead>
-            <tr className="bg-zinc-800">
-              <th className="px-4 py-2 text-left">ID</th>
-              <th className="px-4 py-2 text-left">Invoice No</th>
-              <th className="px-4 py-2 text-left">Client</th>
-              <th className="px-4 py-2 text-left">Date</th>
-              <th className="px-4 py-2 text-left">Total</th>
-              <th className="px-4 py-2 text-left">Paid</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice.id} className="border-t border-zinc-400">
-                <td className="p-2">{invoice.id}</td>
-                <td className="p-2">{invoice.invoiceNumber}</td>
-                <td className="p-2">{invoice.clientName}</td>
-                <td className="p-2">{invoice.issueDate}</td>
-                <td className="p-2">£{invoice.totalAmount}</td>
-                <td className="p-2">{invoice.isPaid ? "Yes" : "No"}</td>
-                <td className="p-2 flex flex-wrap gap-2 text-sm">
-                  <button
-                    className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => openInvoiceModal(invoice.id)}
+        <div className="overflow-x-auto shadow-lg rounded-xl border border-zinc-700 bg-[#242424]">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-zinc-700">
+                {["ID", "Invoice No", "Client", "Date", "Total", "Paid", "Actions"].map((h) => (
+                  <th
+                    key={h}
+                    className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${
+                      h === "Actions" ? "w-[150px]" : ""
+                    }`}
                   >
-                    View
-                  </button>
-                  {!invoice.isPaid && (
-                    <button
-                      className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
-                      onClick={async () => {
-                        await markAsPaid(invoice.id);
-                        await fetchInvoices();
-                      }}
-                    >
-                      Mark as Paid
-                    </button>
-                  )}
-                  <button
-                    className="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white"
-                    onClick={async () => {
-                      await sendInvoiceEmail(invoice.id);
-                      alert("Invoice sent!");
-                    }}
-                  >
-                    Email
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white"
-                    onClick={async () => {
-                      if (confirm("Are you sure you want to delete this invoice?")) {
-                        await deleteInvoice(invoice.id);
-                        setInvoices(prev => prev.filter(i => i.id !== invoice.id));
-                      }
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {invoices.map((invoice) => (
+                <tr
+                  key={invoice.id}
+                  className="border-b border-zinc-700 hover:bg-zinc-800/40 transition-colors"
+                >
+                  <td className="px-6 py-4 text-center text-white font-medium">{invoice.id}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[100px]">{invoice.invoiceNumber}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[100px]">{invoice.clientName}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[90px]">{invoice.issueDate}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[50px]">£{invoice.totalAmount}</td>
+                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[50px]">{invoice.isPaid ? "Yes" : "No"}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-end gap-3 pr-2">
+                      <button
+                        onClick={() => openInvoiceModal(invoice.id)}
+                        className="px-3 py-1.5 text-xs rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                      >
+                        View
+                      </button>
+                      {!invoice.isPaid && (
+                        <button
+                          onClick={async () => {
+                            await markAsPaid(invoice.id);
+                            await fetchInvoices();
+                          }}
+                          className="px-3 py-1.5 text-xs rounded-md bg-green-600 hover:bg-green-500 text-white transition-colors"
+                        >
+                          Mark Paid
+                        </button>
+                      )}
+                      <button
+                        onClick={async () => {
+                          await sendInvoiceEmail(invoice.id);
+                          alert("Invoice sent!");
+                        }}
+                        className="px-3 py-1.5 text-xs rounded-md bg-yellow-600 hover:bg-yellow-500 text-white transition-colors"
+                      >
+                        Email
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm("Are you sure you want to delete this invoice?")) {
+                            await deleteInvoice(invoice.id);
+                            setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
+                          }
+                        }}
+                        className="px-3 py-1.5 text-xs rounded-md bg-rose-600 hover:bg-rose-500 text-white transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       )}
 
       <InvoiceModal
