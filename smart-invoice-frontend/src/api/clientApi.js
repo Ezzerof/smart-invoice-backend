@@ -14,6 +14,13 @@ export const fetchClients = async () => {
   }
 };
 
+export async function fetchClientsWithFilters(queryString) {
+  const res = await fetch(`http://localhost:8080/api/clients/filter?${queryString}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error("Failed to fetch clients");
+  return res.json();
+}
 
 export const createClient = async (clientData) => {
   try {
