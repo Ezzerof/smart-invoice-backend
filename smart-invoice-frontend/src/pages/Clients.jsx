@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  fetchClients,
+  fetchClientsWithFilters,
   deleteClient,
 } from "../api/clientApi";
 import ClientTable from "../components/clients/ClientTable";
@@ -17,10 +17,22 @@ export default function Clients() {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
 
-  const load = async () => {
+  const [keyword, setKeyword] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [sortBy, setSortBy] = useState("");
+
+  const loadClients = async () => {
     setLoading(true);
     try {
-      setClients(await fetchClients());
+      const params = new URLSearchParams();
+      if (keyword) params.append("keyword", keyword);
+      if (city) params.append("city", city);
+      if (country) params.append("country", country);
+      if (sortBy) params.append("sortBy", sortBy);
+
+      const response = await fetchClientsWithFilters(params.toString());
+      setClients(response);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -29,8 +41,8 @@ export default function Clients() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    loadClients();
+  }, [keyword, city, country, sortBy]);
 
   const handleDelete = async (client) => {
     if (!window.confirm(`Delete ${client.name}?`)) return;
@@ -43,18 +55,13 @@ export default function Clients() {
   };
 
   const handleUpdateInList = (updated) =>
-    setClients((cur) =>
-      cur.map((c) => (c.id === updated.id ? updated : c))
-    );
-
-  /* UI ------------------------------------------------------------------ */
+    setClients((cur) => cur.map((c) => (c.id === updated.id ? updated : c)));
 
   if (loading) return <p className="p-6">Loading clients…</p>;
   if (error) return <p className="p-6 text-rose-400">Error: {error}</p>;
 
   return (
     <section className="space-y-8">
-      {/* nav bar --------------------------------------------------------- */}
       <header className="flex items-center justify-between py-4">
         <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
         {user && (
@@ -67,20 +74,58 @@ export default function Clients() {
         )}
       </header>
 
-      {/* table ----------------------------------------------------------- */}
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <input
+          type="text"
+          placeholder="Search keyword..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+        />
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+        >
+          <option value="">All Cities</option>
+          <option value="london">London</option>
+          <option value="manchester">Manchester</option>
+        </select>
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+        >
+          <option value="">All Countries</option>
+          <option value="uk">UK</option>
+          <option value="germany">Germany</option>
+          {/* Add dynamically if needed */}
+        </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+        >
+          <option value="">Sort By</option>
+          <option value="name">Name (A-Z)</option>
+          <option value="-name">Name (Z-A)</option>
+          <option value="city">City</option>
+          <option value="country">Country</option>
+        </select>
+      </div>
+
       <ClientTable
         clients={clients}
         onEdit={(c) => setEditTarget(c)}
         onDelete={handleDelete}
       />
 
-      {/* modals ---------------------------------------------------------- */}
       <ClientFormModal
         isOpen={isCreateOpen}
         onClose={() => setCreateOpen(false)}
         onClientCreated={(c) => setClients((list) => [...list, c])}
       />
-
       <ClientEditModal
         isOpen={!!editTarget}
         client={editTarget}
