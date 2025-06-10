@@ -42,7 +42,7 @@ export default function Clients() {
 
   useEffect(() => {
     loadClients();
-  }, [keyword, city, country, sortBy]);
+  }, []);
 
   const handleDelete = async (client) => {
     if (!window.confirm(`Delete ${client.name}?`)) return;
@@ -76,32 +76,24 @@ export default function Clients() {
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input
-          type="text"
-          placeholder="Search keyword..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
-        />
-        <select
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
-        >
-          <option value="">All Cities</option>
-          <option value="london">London</option>
-          <option value="manchester">Manchester</option>
-        </select>
-        <select
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
-        >
-          <option value="">All Countries</option>
-          <option value="uk">UK</option>
-          <option value="germany">Germany</option>
-          {/* Add dynamically if needed */}
-        </select>
+        <div className="flex flex-col w-full md:w-1/2">
+          <label className="mb-1 text-sm font-medium text-white">Search</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search by name, email or company..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="flex-1 px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+            />
+            <button
+              onClick={loadClients}
+              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              Search
+            </button>
+          </div>
+        </div>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
