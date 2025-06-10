@@ -1,5 +1,6 @@
 package com.smartinvoice.export.controller;
 
+import com.smartinvoice.client.dto.ClientFilterRequest;
 import com.smartinvoice.export.dto.ExportClientFilterRequest;
 import com.smartinvoice.export.dto.InvoiceFilterRequest;
 import com.smartinvoice.client.service.ClientService;
@@ -29,14 +30,34 @@ public class ExportController {
             @RequestParam(required = false) String country,
             HttpServletResponse response) throws IOException {
 
-        // Set response headers
+        // Set headers
         response.setContentType("text/csv");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"clients_export.csv\"");
 
-        // Build filters and export
-        ExportClientFilterRequest filters = new ExportClientFilterRequest(name, companyName, city, country);
-        clientService.writeClientsToCsv(response, filters);
+        // Map ExportClientFilterRequest to ClientFilterRequest
+        ExportClientFilterRequest exportFilters = new ExportClientFilterRequest(name, companyName, city, country);
+
+        // Keyword = combination of name + company name
+        String keyword = buildKeywordFrom(exportFilters.name(), exportFilters.companyName());
+
+        // Create a compatible ClientFilterRequest with keyword
+        ClientFilterRequest adapted = new ClientFilterRequest(
+                keyword,
+                exportFilters.city(),
+                exportFilters.country(),
+                null
+        );
+
+        clientService.writeClientsToCsv(response, adapted);
+    }
+
+    private String buildKeywordFrom(String name, String companyName) {
+        if (name == null && companyName == null) return null;
+        StringBuilder sb = new StringBuilder();
+        if (name != null) sb.append(name).append(" ");
+        if (companyName != null) sb.append(companyName);
+        return sb.toString().trim();
     }
 
     @GetMapping("/invoices/csv")
