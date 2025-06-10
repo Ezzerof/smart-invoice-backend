@@ -37,6 +37,12 @@ public class ClientController {
         return clientService.getFilteredClients(filters);
     }
 
+    @GetMapping("/filter")
+    public List<ClientResponseDto> getFilteredClients(ClientFilterRequest filters) {
+        return clientService.getFilteredClients(filters);
+    }
+
+
     // Get a single client by ID
     @GetMapping("/{id}")
     public ClientResponseDto getClientById(@PathVariable Long id) {
