@@ -1,6 +1,6 @@
 package com.smartinvoice.export.controller;
 
-import com.smartinvoice.export.dto.ClientFilterRequest;
+import com.smartinvoice.export.dto.ExportClientFilterRequest;
 import com.smartinvoice.export.dto.InvoiceFilterRequest;
 import com.smartinvoice.client.service.ClientService;
 import com.smartinvoice.invoice.service.InvoiceService;
@@ -35,7 +35,7 @@ public class ExportController {
                 "attachment; filename=\"clients_export.csv\"");
 
         // Build filters and export
-        ClientFilterRequest filters = new ClientFilterRequest(name, companyName, city, country);
+        ExportClientFilterRequest filters = new ExportClientFilterRequest(name, companyName, city, country);
         clientService.writeClientsToCsv(response, filters);
     }
 

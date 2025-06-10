@@ -1,12 +1,13 @@
 package com.smartinvoice.client.service;
 
 import com.smartinvoice.audit.service.AuditLogService;
-import com.smartinvoice.export.dto.ClientFilterRequest;
+import com.smartinvoice.client.dto.ClientFilterRequest;
 import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.entity.Client;
 import com.smartinvoice.client.repository.ClientRepository;
 import com.smartinvoice.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Sort;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -92,7 +93,7 @@ public class ClientService {
     }
 
     public List<ClientResponseDto> getFilteredClients(ClientFilterRequest filters) {
-        return repository.findAll(withFilters(filters)).stream()
+        return repository.findAll(withFilters(filters), getSort(filters.sortBy())).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -101,12 +102,14 @@ public class ClientService {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (filters.name() != null && !filters.name().isBlank()) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + filters.name().toLowerCase() + "%"));
+            if (filters.keyword() != null && !filters.keyword().isBlank()) {
+                String kw = "%" + filters.keyword().toLowerCase() + "%";
+                Predicate byName = cb.like(cb.lower(root.get("name")), kw);
+                Predicate byEmail = cb.like(cb.lower(root.get("email")), kw);
+                Predicate byCompany = cb.like(cb.lower(root.get("companyName")), kw);
+                predicates.add(cb.or(byName, byEmail, byCompany));
             }
-            if (filters.companyName() != null && !filters.companyName().isBlank()) {
-                predicates.add(cb.like(cb.lower(root.get("companyName")), "%" + filters.companyName().toLowerCase() + "%"));
-            }
+
             if (filters.city() != null && !filters.city().isBlank()) {
                 predicates.add(cb.equal(cb.lower(root.get("city")), filters.city().toLowerCase()));
             }
@@ -117,6 +120,18 @@ public class ClientService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
+    private Sort getSort(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) return Sort.unsorted();
+
+        return switch (sortBy.toLowerCase()) {
+            case "name" -> Sort.by("name").ascending();
+            case "city" -> Sort.by("city").ascending();
+            case "country" -> Sort.by("country").ascending();
+            default -> Sort.unsorted();
+        };
+    }
+
 
     public void writeClientsToCsv(HttpServletResponse response, ClientFilterRequest filters) throws IOException {
         List<Client> clients = repository.findAll(withFilters(filters));

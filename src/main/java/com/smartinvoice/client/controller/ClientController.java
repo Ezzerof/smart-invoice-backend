@@ -1,6 +1,6 @@
 package com.smartinvoice.client.controller;
 
-import com.smartinvoice.export.dto.ClientFilterRequest;
+import com.smartinvoice.client.dto.ClientFilterRequest;
 import com.smartinvoice.client.dto.ClientRequestDto;
 import com.smartinvoice.client.dto.ClientResponseDto;
 import com.smartinvoice.client.service.ClientService;
@@ -8,9 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 
 import java.util.List;
 
@@ -30,8 +27,14 @@ public class ClientController {
 
     // Get a list of all clients
     @GetMapping
-    public List<ClientResponseDto> getAllClients() {
-        return clientService.getAllClients();
+    public List<ClientResponseDto> getClients(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String sortBy
+    ) {
+        ClientFilterRequest filters = new ClientFilterRequest(keyword, city, country, sortBy);
+        return clientService.getFilteredClients(filters);
     }
 
     // Get a single client by ID
