@@ -16,21 +16,34 @@ export default function Products() {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to fetch products.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [keyword, setKeyword] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
+
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (keyword) params.append("keyword", keyword);
+      if (sortBy) params.append("sortBy", sortBy);
+
+      const data = await fetch(`/api/products/filter?${params.toString()}`).then(res => res.json());
+      setProducts(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to fetch products.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (sortBy) loadProducts();
+  }, [sortBy]);
 
   const handleDelete = async (product) => {
     if (!window.confirm(`Delete ${product.name}?`)) return;
@@ -63,6 +76,46 @@ export default function Products() {
           + Add Product
         </button>
       </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Search input and button side-by-side */}
+        <div className="flex flex-col">
+          <label className="mb-1 text-sm font-medium text-white">Search</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Search by name"
+              className="flex-1 px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+            />
+            <button
+              onClick={loadProducts}
+              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+
+        {/* Sort dropdown */}
+        <div className="flex flex-col">
+          <label className="mb-1 text-sm font-medium text-white">Sort By</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+          >
+            <option value="">Default</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="-name">Name (Z-A)</option>
+            <option value="price">Price (Low to High)</option>
+            <option value="-price">Price (High to Low)</option>
+          </select>
+        </div>
+      </div>
+
+
 
       {loading && <p className="text-zinc-400">Loading...</p>}
       {error && <p className="text-red-400">{error}</p>}
