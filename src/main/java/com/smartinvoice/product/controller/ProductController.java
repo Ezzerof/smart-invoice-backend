@@ -1,5 +1,6 @@
 package com.smartinvoice.product.controller;
 
+import com.smartinvoice.product.dto.ProductFilterRequest;
 import com.smartinvoice.product.dto.ProductRequestDto;
 import com.smartinvoice.product.dto.ProductResponseDto;
 import com.smartinvoice.product.service.ProductService;
@@ -43,4 +44,12 @@ public class ProductController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    @GetMapping("/filter")
+    public List<ProductResponseDto> filterProducts(@RequestParam(required = false) String keyword,
+                                                   @RequestParam(required = false) String sortBy) {
+        ProductFilterRequest filters = new ProductFilterRequest(keyword, sortBy);
+        return service.getFilteredProducts(filters);
+    }
+
 }
