@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   fetchClientsWithFilters,
   deleteClient,
-} from "../api/clientApi";
-import ClientTable from "../components/clients/ClientTable";
-import ClientFormModal from "../components/clients/ClientFormModal";
-import ClientEditModal from "../components/clients/ClientEditModal";
-import { useAuth } from "../contexts/AuthContext";
+} from '../api/clientApi';
+import ClientTable from '../components/clients/ClientTable';
+import ClientFormModal from '../components/clients/ClientFormModal';
+import ClientEditModal from '../components/clients/ClientEditModal';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Clients() {
   const { user } = useAuth();
@@ -17,22 +17,18 @@ export default function Clients() {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
 
-  const [keyword, setKeyword] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [keyword, setKeyword] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
   const loadClients = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (keyword) params.append("keyword", keyword);
-      if (city) params.append("city", city);
-      if (country) params.append("country", country);
-      if (sortBy) params.append("sortBy", sortBy);
+      if (keyword) params.append('keyword', keyword);
+      if (sortBy) params.append('sortBy', sortBy);
 
-      const response = await fetchClientsWithFilters(params.toString());
-      setClients(response);
+      const data = await fetchClientsWithFilters(params.toString());
+      setClients(data);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -44,18 +40,20 @@ export default function Clients() {
     loadClients();
   }, []);
 
+  useEffect(() => {
+    if (sortBy) loadClients();
+  }, [sortBy]);
+
   const handleDelete = async (client) => {
     if (!window.confirm(`Delete ${client.name}?`)) return;
-    try {
-      await deleteClient(client.id);
-      setClients((cur) => cur.filter((c) => c.id !== client.id));
-    } catch (e) {
-      alert(e.message);
-    }
+    await deleteClient(client.id);
+    setClients((cur) => cur.filter((c) => c.id !== client.id));
   };
 
-  const handleUpdateInList = (updated) =>
-    setClients((cur) => cur.map((c) => (c.id === updated.id ? updated : c)));
+  const handleUpdate = (updated) =>
+    setClients((cur) =>
+      cur.map((c) => (c.id === updated.id ? updated : c))
+    );
 
   if (loading) return <p className="p-6">Loading clients…</p>;
   if (error) return <p className="p-6 text-rose-400">Error: {error}</p>;
@@ -103,8 +101,8 @@ export default function Clients() {
             className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
           >
             <option value="">Sort By</option>
-            <option value="name">Name (A-Z)</option>
-            <option value="-name">Name (Z-A)</option>
+            <option value="name">Name (A–Z)</option>
+            <option value="-name">Name (Z–A)</option>
             <option value="city">City</option>
             <option value="country">Country</option>
           </select>
@@ -126,7 +124,7 @@ export default function Clients() {
         isOpen={!!editTarget}
         client={editTarget}
         onClose={() => setEditTarget(null)}
-        onUpdated={handleUpdateInList}
+        onUpdated={handleUpdate}
       />
     </section>
   );
