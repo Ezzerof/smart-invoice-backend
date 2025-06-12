@@ -95,7 +95,7 @@ export default function Invoices() {
         </div>
 
         <div className="flex flex-col">
-          <label className="mb-1 text-sm font-medium text-white">Payment Status</label>
+          <label className="mb-1 text-sm font-medium text-white">Sort By</label>
           <select
             value={isPaid}
             onChange={e => setIsPaid(e.target.value)}
