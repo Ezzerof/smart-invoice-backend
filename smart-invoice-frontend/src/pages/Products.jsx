@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProductFormModal from "../components/products/ProductFormModal";
 import ProductEditModal from "../components/products/ProductEditModal";
+import SharedTableWrapper from "../components/common/SharedTableWrapper";
 import {
   createProduct,
   updateProduct,
@@ -125,54 +126,61 @@ export default function Products() {
       )}
 
       {!loading && !error && products.length > 0 && (
-        <div className="overflow-x-auto shadow-lg rounded-xl border border-zinc-700 bg-[#242424]">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-zinc-700">
-                {["Name", "Description", "Price", "Quantity", "Actions"].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${
-                      h === "Actions" ? "w-[100px]" : ""
-                    }`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-zinc-700 hover:bg-zinc-800/40 transition-colors"
+        <SharedTableWrapper>
+          <thead>
+            <tr className="border-b border-zinc-700">
+              {["Name", "Description", "Price", "Quantity", "Actions"].map((h) => (
+                <th
+                  key={h}
+                  className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${
+                    h === "Actions" ? "w-[100px]" : ""
+                  }`}
                 >
-                  <td className="px-6 py-4 text-center text-white font-medium">{p.name}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300 min-w-[200px]">{p.description}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">{p.currency} {p.price.toFixed(2)}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">{p.quantity}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-end gap-4 pr-4">
-                      <button
-                        onClick={() => setEditTarget(p)}
-                        className="px-4 py-1.5 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p)}
-                        className="px-4 py-1.5 text-xs rounded-md bg-rose-600 hover:bg-rose-500 text-white transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  {h}
+                </th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((p) => (
+              <tr
+                key={p.id}
+                className="border-b border-zinc-700 hover:bg-zinc-800/40 transition-colors"
+              >
+                <td className="px-6 py-4 text-center text-white font-medium">
+                  {p.name}
+                </td>
+                <td className="px-6 py-4 text-center text-zinc-300 min-w-[200px]">
+                  {p.description}
+                </td>
+                <td className="px-6 py-4 text-center text-zinc-300">
+                  £{p.price.toFixed(2)}
+                </td>
+                <td className="px-6 py-4 text-center text-zinc-300">
+                  {p.quantity}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex justify-end gap-4 pr-4">
+                    <button
+                      onClick={() => setEditTarget(p)}
+                      className="px-4 py-1.5 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p)}
+                      className="px-4 py-1.5 text-xs rounded-md bg-rose-600 hover:bg-rose-500 text-white transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </SharedTableWrapper>
       )}
+
 
       {/* Modals */}
       <ProductFormModal
