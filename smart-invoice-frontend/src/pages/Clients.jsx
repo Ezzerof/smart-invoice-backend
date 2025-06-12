@@ -74,9 +74,9 @@ export default function Clients() {
         )}
       </header>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="flex flex-col w-full md:w-1/2">
+      {/* Search & Sort */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col">
           <label className="mb-1 text-sm font-medium text-white">Search</label>
           <div className="flex gap-2">
             <input
@@ -94,17 +94,21 @@ export default function Clients() {
             </button>
           </div>
         </div>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
-        >
-          <option value="">Sort By</option>
-          <option value="name">Name (A-Z)</option>
-          <option value="-name">Name (Z-A)</option>
-          <option value="city">City</option>
-          <option value="country">Country</option>
-        </select>
+
+        <div className="flex flex-col">
+          <label className="mb-1 text-sm font-medium text-white">Sort By</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 rounded border border-zinc-600 bg-zinc-800 text-white"
+          >
+            <option value="">Sort By</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="-name">Name (Z-A)</option>
+            <option value="city">City</option>
+            <option value="country">Country</option>
+          </select>
+        </div>
       </div>
 
       <ClientTable
