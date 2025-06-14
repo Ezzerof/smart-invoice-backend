@@ -42,21 +42,35 @@ public class InvoiceService {
         var client = clientRepository.findById(dto.clientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
-        var products = productRepository.findAllById(dto.productIds());
+        if (dto.products() == null || dto.products().isEmpty()) {
+            throw new IllegalArgumentException("Invoice must contain at least one product");
+        }
 
-        double totalAmount = products.stream()
-                .mapToDouble(p -> p.getPrice())
+        var productIds = dto.products().stream()
+                .map(item -> item.productId())
+                .filter(id -> id != null)
+                .toList();
+
+        if (productIds.isEmpty()) {
+            throw new IllegalArgumentException("No valid product IDs provided");
+        }
+
+        var products = productRepository.findAllById(productIds);
+
+        double totalAmount = dto.products().stream()
+                .mapToDouble(item -> item.price() * item.quantity())
                 .sum();
 
         Invoice invoice = Invoice.builder()
-                .invoiceNumber(dto.invoiceNumber())
-                .issueDate(dto.issueDate())
+                .invoiceNumber(dto.invoiceNumber() != null ? dto.invoiceNumber() : generateNextInvoiceNumber())
+                .issueDate(dto.issueDate() != null ? dto.issueDate() : LocalDate.now())
                 .dueDate(dto.dueDate())
                 .client(client)
                 .products(products)
                 .totalAmount(totalAmount)
-                .isPaid(dto.isPaid())
+                .isPaid(dto.isPaid() != null ? dto.isPaid() : false)
                 .build();
+
 
         client.getInvoices().add(invoice);
 
@@ -66,6 +80,25 @@ public class InvoiceService {
 
         return mapToDto(saved);
     }
+
+    private String generateNextInvoiceNumber() {
+        String currentYear = String.valueOf(LocalDate.now().getYear());
+        String prefix = "INV-" + currentYear + "-";
+
+        // Find the last invoice number for the current year
+        List<Invoice> yearInvoices = invoiceRepository.findByInvoiceNumberStartingWithOrderByInvoiceNumberDesc(prefix);
+
+        if (!yearInvoices.isEmpty()) {
+            String lastNumber = yearInvoices.get(0).getInvoiceNumber(); // e.g., INV-2025-0042
+            String[] parts = lastNumber.split("-");
+            int lastSeq = Integer.parseInt(parts[2]);
+            return prefix + String.format("%04d", lastSeq + 1);
+        }
+
+        // If no invoices yet for this year
+        return prefix + "0001";
+    }
+
 
     public List<InvoiceResponseDto> getFilteredInvoices(InvoiceSearchFilter filter) {
         Specification<Invoice> spec = (root, query, cb) -> {

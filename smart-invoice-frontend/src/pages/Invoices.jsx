@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import InvoiceModal from '../components/invoices/InvoiceModal';
+import InvoiceFormModal from '../components/invoices/InvoiceFormModal';
 import { useAuth } from '../contexts/AuthContext';
 
 
@@ -8,6 +9,7 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [isCreateOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [isPaid, setIsPaid] = useState('');
 
@@ -49,12 +51,20 @@ export default function Invoices() {
     <div className="p-6">
       <header className="flex items-center justify-between py-4">
         <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-        <button
-          onClick={downloadCsv}
-          className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-        >
-          Download CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={downloadCsv}
+            className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+          >
+            Download CSV
+          </button>
+          <button
+            onClick={() => setCreateOpen(true)}
+            className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white"
+          >
+            + Create Invoice
+          </button>
+        </div>
       </header>
 
       <div className="mb-6 flex flex-col md:flex-row md:items-end gap-4">
@@ -164,6 +174,15 @@ export default function Invoices() {
           </table>
         </div>
       )}
+
+      <InvoiceFormModal
+        isOpen={isCreateOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={() => {
+          setCreateOpen(false);
+          fetchInvoices();
+        }}
+      />
 
       <InvoiceModal
         isOpen={!!selectedInvoice}

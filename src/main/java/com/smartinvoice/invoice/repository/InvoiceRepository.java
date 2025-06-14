@@ -22,4 +22,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, JpaSpec
     List<Invoice> findByStatus(Invoice.InvoiceStatus status);
 
     List<Invoice> findByOverdueSinceBefore(LocalDate date);
+
+    List<Invoice> findByInvoiceNumberStartingWithOrderByInvoiceNumberDesc(String prefix);
+
 }
