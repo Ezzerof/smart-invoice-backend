@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import InvoiceModal from '../components/invoices/InvoiceModal';
+import { useAuth } from '../contexts/AuthContext';
+
 
 export default function Invoices() {
+  const { user } = useAuth();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -25,6 +28,7 @@ export default function Invoices() {
   };
 
   useEffect(() => {
+    if (!user) return;
     fetchInvoices();
   }, [search, isPaid]);
 

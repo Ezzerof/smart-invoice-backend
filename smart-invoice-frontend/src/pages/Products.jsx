@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ProductFormModal from "../components/products/ProductFormModal";
 import ProductEditModal from "../components/products/ProductEditModal";
 import SharedTableWrapper from "../components/common/SharedTableWrapper";
+import { useAuth } from '../contexts/AuthContext';
 import {
   createProduct,
   updateProduct,
@@ -10,6 +11,8 @@ import {
 } from "../api/productApi";
 
 export default function Products() {
+  const { user } = useAuth();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,10 +42,12 @@ export default function Products() {
   };
 
   useEffect(() => {
+    if (!user) return;
     loadProducts();
   }, []);
 
   useEffect(() => {
+    if (!user) return;
     if (sortBy) loadProducts();
   }, [sortBy]);
 
