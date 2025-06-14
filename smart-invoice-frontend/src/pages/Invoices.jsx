@@ -3,7 +3,6 @@ import InvoiceModal from '../components/invoices/InvoiceModal';
 import InvoiceFormModal from '../components/invoices/InvoiceFormModal';
 import { useAuth } from '../contexts/AuthContext';
 
-
 export default function Invoices() {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState([]);
@@ -12,6 +11,7 @@ export default function Invoices() {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [isPaid, setIsPaid] = useState('');
+  const [dropdownPosition, setDropdownPosition] = useState(null);
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -108,12 +108,10 @@ export default function Invoices() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-700">
-                {['ID','Invoice No','Client','Date','Total','Paid','Actions'].map((h) => (
+                {['Invoice No','Client','Date','Total','Paid','Actions'].map((h) => (
                   <th
                     key={h}
-                    className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${
-                      h === 'Actions' ? 'w-[200px]' : ''
-                    }`}
+                    className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${h === 'Actions' ? 'w-[200px]' : ''}`}
                   >
                     {h}
                   </th>
@@ -126,52 +124,93 @@ export default function Invoices() {
                   key={invoice.id}
                   className="border-b border-zinc-700 hover:bg-zinc-800/40 transition-colors"
                 >
-                  <td className="px-6 py-4 text-center text-white font-medium">{invoice.id}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">{invoice.invoiceNumber}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">{invoice.clientName}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">{invoice.issueDate}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">£{invoice.totalAmount}</td>
                   <td className="px-6 py-4 text-center text-zinc-300">{invoice.isPaid ? 'Yes' : 'No'}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-end gap-2 pr-4">
-                      <button
-                        onClick={() => downloadPdf(invoice.id)}
-                        className="px-3 py-1.5 text-xs rounded-md bg-blue-600 hover:bg-blue-500 text-white"
-                      >
-                        PDF
-                      </button>
-                      <button
-                        onClick={() => setSelectedInvoice(invoice)}
-                        className="px-3 py-1.5 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white"
-                      >
-                        View
-                      </button>
-                      {!invoice.isPaid && (
-                        <button
-                          onClick={async () => { await fetch(`http://localhost:8080/api/invoices/${invoice.id}/mark-paid`, { method: 'PATCH', credentials: 'include' }); fetchInvoices(); }}
-                          className="px-3 py-1.5 text-xs rounded-md bg-green-600 hover:bg-green-500 text-white"
-                        >
-                          Mark Paid
-                        </button>
-                      )}
-                      <button
-                        onClick={async () => { await fetch(`http://localhost:8080/api/invoices/${invoice.id}/email`, { method: 'POST', credentials: 'include' }); alert('Invoice emailed'); }}
-                        className="px-3 py-1.5 text-xs rounded-md bg-yellow-600 hover:bg-yellow-500 text-white"
-                      >
-                        Email
-                      </button>
-                      <button
-                        onClick={async () => { if (confirm('Delete this invoice?')) { await fetch(`http://localhost:8080/api/invoices/${invoice.id}`, { method: 'DELETE', credentials: 'include' }); fetchInvoices(); } }}
-                        className="px-3 py-1.5 text-xs rounded-md bg-rose-600 hover:bg-rose-500 text-white"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                  <td className="px-6 py-4 text-center relative">
+                    <button
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setDropdownPosition({
+                          top: rect.bottom + window.scrollY,
+                          left: rect.left + window.scrollX,
+                          invoice,
+                        });
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-md bg-zinc-700 hover:bg-zinc-600 text-white"
+                    >
+                      Options
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {dropdownPosition && (
+        <div
+          className="fixed z-50 bg-zinc-800 border border-zinc-700 rounded shadow-md p-2 space-y-1"
+          style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+        >
+          <button
+            onClick={() => {
+              downloadPdf(dropdownPosition.invoice.id);
+              setDropdownPosition(null);
+            }}
+            className="w-full text-left text-sm px-2 py-1 hover:bg-zinc-700 text-white"
+          >PDF</button>
+          <button
+            onClick={() => {
+              setSelectedInvoice(dropdownPosition.invoice);
+              setDropdownPosition(null);
+            }}
+            className="w-full text-left text-sm px-2 py-1 hover:bg-zinc-700 text-white"
+          >View</button>
+          {!dropdownPosition.invoice.isPaid && (
+            <button
+              onClick={async () => {
+                await fetch(`http://localhost:8080/api/invoices/${dropdownPosition.invoice.id}/mark-paid`, {
+                  method: 'PATCH',
+                  credentials: 'include',
+                });
+                fetchInvoices();
+                setDropdownPosition(null);
+              }}
+              className="w-full text-left text-sm px-2 py-1 hover:bg-zinc-700 text-white"
+            >Mark Paid</button>
+          )}
+          <button
+            onClick={async () => {
+              await fetch(`http://localhost:8080/api/invoices/${dropdownPosition.invoice.id}/email`, {
+                method: 'POST',
+                credentials: 'include',
+              });
+              alert('Invoice emailed');
+              setDropdownPosition(null);
+            }}
+            className="w-full text-left text-sm px-2 py-1 hover:bg-zinc-700 text-white"
+          >Email</button>
+          <button
+            onClick={async () => {
+              if (confirm('Delete this invoice?')) {
+                await fetch(`http://localhost:8080/api/invoices/${dropdownPosition.invoice.id}`, {
+                  method: 'DELETE',
+                  credentials: 'include',
+                });
+                fetchInvoices();
+              }
+              setDropdownPosition(null);
+            }}
+            className="w-full text-left text-sm px-2 py-1 text-rose-400 hover:bg-zinc-700"
+          >Delete</button>
+          <button
+            onClick={() => setDropdownPosition(null)}
+            className="w-full text-left text-sm px-2 py-1 text-zinc-400 hover:bg-zinc-700"
+          >Close</button>
         </div>
       )}
 
