@@ -59,7 +59,12 @@ export const logout = async () => {
       method: "POST",
       credentials: "include",
     });
-    return response.ok;
+
+    if (!response.ok) {
+      throw new Error(`Logout failed (${response.status})`);
+    }
+
+    return true;
   } catch (error) {
     console.error('API logout error:', error);
     return false;

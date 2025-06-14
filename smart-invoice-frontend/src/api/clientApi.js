@@ -14,13 +14,23 @@ export const fetchClients = async () => {
   }
 };
 
-export async function fetchClientsWithFilters(queryString) {
-  const res = await fetch(`http://localhost:8080/api/clients/filter?${queryString}`, {
-    credentials: 'include',
+export const fetchClientsWithFilters = async (queryString) => {
+  const response = await fetch(`${API_BASE}/api/clients/filter?${queryString}`, {
+    credentials: "include",
   });
-  if (!res.ok) throw new Error("Failed to fetch clients");
-  return res.json();
-}
+
+  const contentType = response.headers.get("content-type");
+
+  if (response.status === 401 || contentType?.includes("text/html")) {
+    throw new Error("Unauthorized or session expired");
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch clients");
+  }
+
+  return await response.json();
+};
 
 export const createClient = async (clientData) => {
   try {

@@ -1,35 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import api from './api/api';
-import { AuthProvider } from './contexts/AuthContext';
+import Clients from './pages/Clients';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
-const App = () => {
-  const [user, setUser] = useState(null);
-  const [checking, setChecking] = useState(true);
+const AppRoutes = () => {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    api.get('/auth/me')
-      .then(res => setUser(res.data.username))
-      .catch(() => setUser(null))
-      .finally(() => setChecking(false));
-  }, []);
-
-  if (checking) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
     <Routes>
-      <Route path="/login" element={<Login setUser={setUser} />} />
+      <Route path="/login" element={<Login />} />
       <Route
-        path="/"
+        path="/clients"
         element={
-          user ? <Dashboard user={user} /> : <Navigate to="/login" />
+          <PrivateRoute>
+            <Clients />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/products"
+        element={
+          <PrivateRoute>
+            <Products />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/invoices"
+        element={
+          <PrivateRoute>
+            <Invoices />
+          </PrivateRoute>
         }
       />
     </Routes>
   );
 };
 
+const App = () => (
+  <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
+);
 
 export default App;

@@ -37,12 +37,12 @@ export default function Clients() {
   };
 
   useEffect(() => {
+    if (!user) return;
     loadClients();
-  }, []);
+  }, [user, sortBy]);
 
-  useEffect(() => {
-    if (sortBy) loadClients();
-  }, [sortBy]);
+
+
 
   const handleDelete = async (client) => {
     if (!window.confirm(`Delete ${client.name}?`)) return;

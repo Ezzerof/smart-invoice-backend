@@ -44,12 +44,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await apiLogout(); // Using renamed import
+      await apiLogout();
       setUser(null);
+
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
+
 
   return (
     <AuthContext.Provider value={{ 
