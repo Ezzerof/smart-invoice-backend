@@ -6,14 +6,56 @@ A Java Spring Boot application that helps freelancers and small businesses manag
 
 ### 📌 Features
 
-- ✅ Client & Product management (CRUD)
-- ✅ Invoice generation with automatic totals
-- ✅ PDF invoice generation using OpenPDF
-- ✅ Email invoice with attachment
-- ✅ Mark invoices as **paid/unpaid**
-- ✅ Business logo & company info in PDFs
-- ✅ Clean layered architecture with DTOs
-- ✅ Built-in validation and exception handling
+## Backend Features
+- CRUD for Clients, Products, and Invoices
+- Filter/search endpoints for Clients, Products, Invoices
+- CSV export for Invoices and Products
+- PDF generation (OpenPDF)
+- Email sending with PDF attachment
+- Mark invoice as paid
+- Automatic invoice number generation
+- Scheduled email reminders
+- Form login via Spring Security (session-based)
+- Validation, exception handling, DTO usage
+
+## Frontend Features (React + Vite)
+🔒 Authentication
+- Session-based login with /auth/login
+- Protected routes with loading state
+- Logout functionality with session invalidation
+
+🧑 Clients Page
+
+- Create, edit, delete clients (with modals)
+- Filter/search by name, email, company
+- Sort by name, city, or country
+- Responsive table layout
+
+📦 Products Page
+
+- Create, edit, delete products (with modals)
+- Live search by name
+- Sorting by name and price (asc/desc)
+- Error and loading state handling
+
+🧾 Invoices Page
+
+- Filter/search by invoice number
+- Filter by paid/unpaid
+- CSV export
+- Create invoice
+  - Dropdown for client selection
+  - Modal with product checkbox selection
+  - Pre-fill price and quantity
+  - Inline editing of product price and quantity
+  - Remove product from list
+  - Total auto-calculation
+  - Due date selection
+  - Submit with validation
+- View PDF
+- Mark as paid
+- Email invoice (PDF attachment)
+- Delete invoice
 
 ---
 
@@ -128,18 +170,21 @@ Run tests with:
 ```
 
 ### 🚧 Roadmap
- ✅Client/Invoice/Product modules
-
- ✅PDF generation with branding
-
- ✅Email integration
-
- ✅Mark invoices as paid/unpaid
-
- ✅Scheduled reminders
-
- ✅Export as Excel/CSV
-
- ✅Authentication (Spring Security)
-
- ⬜Optional web interface (React or Angular)
+- ✅ **Client / Invoice / Product modules** with full CRUD
+- ✅ **PDF generation** with custom branding (logo, company info)
+- ✅ **Email integration** to send invoices as PDF attachments
+- ✅ **Mark invoices as paid/unpaid** via PATCH endpoint and frontend toggle
+- ✅ **Scheduled reminders** (email) using Spring Scheduler
+- ✅ **CSV export** for Invoices and Products
+- ✅ **Authentication** using Spring Security (session-based login)
+- ✅ [Optional] **React frontend (Vite)**:
+  - Clients page with search, sort, modal forms
+  - Products page with filters, sorting, modal forms
+  - Invoices page with filtering, CSV export, PDF viewing, email, marking paid
+  - Invoice creation modal:
+    - Client dropdown
+    - Product selection modal with checkbox picker
+    - Inline price/quantity editing
+    - Auto total calculation
+    - Due date selector
+    - Invoice number auto-generated
