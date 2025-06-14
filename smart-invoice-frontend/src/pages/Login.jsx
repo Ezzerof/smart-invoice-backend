@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -32,14 +33,30 @@ const Login = () => {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
+      {/* Logo at top */}
+      <img
+        src={logo}
+        alt="App Logo"
+        style={{
+          width: '190px',
+          height: 'auto',
+          marginBottom: '1rem',
+        }}
+      />
+
       <h2>Login</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit} style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        gap: '1rem' 
-      }}>
+
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem',
+          marginTop: '1rem',
+        }}
+      >
         <input
           type="text"
           placeholder="Username"
@@ -56,8 +73,8 @@ const Login = () => {
           style={{ padding: '0.5rem', width: '200px' }}
           disabled={loading}
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           style={{ padding: '0.5rem 1rem' }}
           disabled={loading}
         >
