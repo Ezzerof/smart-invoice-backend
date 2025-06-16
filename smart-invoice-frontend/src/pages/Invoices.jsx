@@ -111,7 +111,7 @@ export default function Invoices() {
                 {['Invoice No','Client','Date','Total','Paid','Actions'].map((h) => (
                   <th
                     key={h}
-                    className={`px-6 py-3 text-center text-sm font-semibold text-zinc-300 ${h === 'Actions' ? 'w-[200px]' : ''}`}
+                    className={`px-10 py-3 text-center text-sm font-semibold text-zinc-300 ${h === 'Actions' ? 'w-[200px]' : ''}`}
                   >
                     {h}
                   </th>
@@ -124,12 +124,12 @@ export default function Invoices() {
                   key={invoice.id}
                   className="border-b border-zinc-700 hover:bg-zinc-800/40 transition-colors"
                 >
-                  <td className="px-6 py-4 text-center text-zinc-300">{invoice.invoiceNumber}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">{invoice.clientName}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">{invoice.issueDate}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">£{invoice.totalAmount}</td>
-                  <td className="px-6 py-4 text-center text-zinc-300">{invoice.isPaid ? 'Yes' : 'No'}</td>
-                  <td className="px-6 py-4 text-center relative">
+                  <td className="px-10 py-4 text-center text-zinc-300">{invoice.invoiceNumber}</td>
+                  <td className="px-10 py-4 text-center text-zinc-300 min-w-[150px]">{invoice.clientName}</td>
+                  <td className="px-10 py-4 text-center text-zinc-300 min-w-[100px]">{invoice.issueDate}</td>
+                  <td className="px-10 py-4 text-center text-zinc-300 min-w-[100px]">£{invoice.totalAmount}</td>
+                  <td className="px-10 py-4 text-center text-zinc-300">{invoice.isPaid ? 'Yes' : 'No'}</td>
+                  <td className="px-10 py-4 text-center relative">
                     <button
                       onClick={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect();
