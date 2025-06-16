@@ -1,120 +1,163 @@
 package com.smartinvoice.product.service;
 
+import com.smartinvoice.audit.service.AuditLogService;
+import com.smartinvoice.exception.ResourceNotFoundException;
+import com.smartinvoice.product.dto.ProductFilterRequest;
 import com.smartinvoice.product.dto.ProductRequestDto;
 import com.smartinvoice.product.dto.ProductResponseDto;
 import com.smartinvoice.product.entity.Product;
 import com.smartinvoice.product.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
+    @Mock
     private ProductRepository repository;
-    private ProductService service;
+
+    @Mock
+    private AuditLogService auditLogService;
+
+    @InjectMocks
+    private ProductService productService;
 
     @BeforeEach
-    void setUp() {
-        repository = Mockito.mock(ProductRepository.class);
-        service = new ProductService(repository);
+    void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testCreateProduct() {
-        ProductRequestDto dto = new ProductRequestDto("Logo Design", "Professional logo creation", 120.00, 1);
-        Product savedProduct = Product.builder()
-                .id(1L)
-                .name(dto.name())
-                .description(dto.description())
-                .price(dto.price())
-                .build();
+    @DisplayName("Should create service product and log it")
+    void shouldCreateProduct() {
+        ProductRequestDto request = new ProductRequestDto("Create a logo", "Design a unique logo for branding", 150.00, 1);
+        Product saved = Product.builder().id(1L).name("Create a logo").description("Design a unique logo for branding").price(150.00).quantity(1).build();
 
-        when(repository.save(any(Product.class))).thenReturn(savedProduct);
+        when(repository.save(any(Product.class))).thenReturn(saved);
 
-        ProductResponseDto result = service.create(dto);
+        ProductResponseDto result = productService.create(request);
 
-        assertEquals("Logo Design", result.name());
-        assertEquals("Professional logo creation", result.description());
-        assertEquals(120.00, result.price());
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.name()).isEqualTo("Create a logo");
+        verify(auditLogService).log("CREATE", "Product", "1");
     }
 
     @Test
-    void testGetAllProducts() {
-        List<Product> mockProducts = Arrays.asList(
-                Product.builder().id(1L).name("Logo Design").description("Professional logo").price(120.00).build(),
-                Product.builder().id(2L).name("Business Card Design").description("Front & back card").price(60.00).build()
-        );
+    @DisplayName("Should get all service products")
+    void shouldGetAllProducts() {
+        Product p = Product.builder().id(1L).name("Animate a logo").description("Provide animated logo for videos").price(200.00).quantity(1).build();
+        when(repository.findAll()).thenReturn(List.of(p));
 
-        when(repository.findAll()).thenReturn(mockProducts);
+        List<ProductResponseDto> products = productService.getAll();
 
-        List<ProductResponseDto> result = service.getAll();
-
-        assertEquals(2, result.size());
-        assertEquals("Logo Design", result.get(0).name());
-        assertEquals("Business Card Design", result.get(1).name());
+        assertThat(products).hasSize(1);
+        assertThat(products.get(0).name()).isEqualTo("Animate a logo");
     }
 
     @Test
-    void testGetProductById_Existing() {
-        Product product = Product.builder()
-                .id(1L)
-                .name("Website Mockup")
-                .description("Responsive web layout")
-                .price(300.00)
-                .build();
+    @DisplayName("Should return service product by ID")
+    void shouldGetById() {
+        Product p = Product.builder().id(1L).name("Design webpage").description("Design landing page for startup").price(300.0).quantity(1).build();
+        when(repository.findById(1L)).thenReturn(Optional.of(p));
 
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+        ProductResponseDto result = productService.getById(1L);
 
-        ProductResponseDto result = service.getById(1L);
-
-        assertEquals("Website Mockup", result.name());
+        assertThat(result.name()).isEqualTo("Design webpage");
     }
 
     @Test
-    void testGetProductById_NotFound() {
-        when(repository.findById(99L)).thenReturn(Optional.empty());
+    @DisplayName("Should throw if service product by ID not found")
+    void shouldThrowWhenNotFoundById() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.getById(99L));
+        assertThatThrownBy(() -> productService.getById(1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Product not found");
     }
 
     @Test
-    void testUpdateProduct() {
-        Product existing = Product.builder()
-                .id(1L)
-                .name("Old Name")
-                .description("Old Description")
-                .price(100.00)
-                .build();
+    @DisplayName("Should throw when updating non-existent product")
+    void shouldThrowWhenUpdatingNonExistentProduct() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        ProductRequestDto dto = new ProductRequestDto("Brand Identity Package", "Full branding set", 450.00, 1);
+        ProductRequestDto dto = new ProductRequestDto("Edit", "Updated", 100.0, 1);
 
+        assertThatThrownBy(() -> productService.update(1L, dto))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Product not found");
+    }
+
+    @Test
+    @DisplayName("Should throw when deleting non-existent product")
+    void shouldThrowWhenDeletingNonExistentProduct() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.delete(1L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Product not found");
+    }
+
+    @Test
+    @DisplayName("Should update existing service product")
+    void shouldUpdateProduct() {
+        Product existing = Product.builder().id(1L).name("Design brochure").description("Marketing brochure").price(100.0).quantity(1).build();
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        when(repository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(Product.class))).thenReturn(existing);
 
-        ProductResponseDto result = service.update(1L, dto);
+        ProductRequestDto dto = new ProductRequestDto("Design updated brochure", "Updated brochure design", 120.00, 1);
 
-        assertEquals("Brand Identity Package", result.name());
-        assertEquals("Full branding set", result.description());
-        assertEquals(450.00, result.price());
+        ProductResponseDto updated = productService.update(1L, dto);
+
+        assertThat(updated.name()).isEqualTo("Design updated brochure");
+        verify(auditLogService).log("UPDATE", "Product", "1");
     }
 
     @Test
-    void testDeleteProduct() {
-        Product product = Product.builder().id(1L).name("Temp").description("To delete").price(10.0).build();
+    @DisplayName("Should delete service product")
+    void shouldDeleteProduct() {
+        Product p = Product.builder().id(1L).name("Design business card").build();
+        when(repository.findById(1L)).thenReturn(Optional.of(p));
 
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+        productService.delete(1L);
 
-        service.delete(1L);
+        verify(repository).delete(p);
+        verify(auditLogService).log("DELETE", "Product", "1");
+    }
 
-        verify(repository, times(1)).delete(product);
+    @Test
+    @DisplayName("Should filter service products by keyword")
+    void shouldFilterProducts() {
+        ProductFilterRequest filter = new ProductFilterRequest("logo", "name");
+        Product match = Product.builder().id(1L).name("Logo animation").description("Animated logo for branding").price(180.0).quantity(1).build();
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of(match));
+
+        List<ProductResponseDto> result = productService.getFilteredProducts(filter);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).name()).containsIgnoringCase("logo");
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no products match filter")
+    void shouldReturnEmptyListForNoFilterMatch() {
+        ProductFilterRequest filter = new ProductFilterRequest("nonexistent", "name");
+        when(repository.findAll(any(Specification.class), any(Sort.class))).thenReturn(Collections.emptyList());
+
+        List<ProductResponseDto> result = productService.getFilteredProducts(filter);
+
+        assertThat(result).isEmpty();
     }
 }
