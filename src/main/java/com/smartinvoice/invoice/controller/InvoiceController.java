@@ -20,7 +20,6 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
-    private final InvoiceRepository invoiceRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
