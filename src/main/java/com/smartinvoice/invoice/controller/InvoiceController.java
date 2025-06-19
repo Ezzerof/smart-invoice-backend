@@ -3,7 +3,6 @@ package com.smartinvoice.invoice.controller;
 import com.smartinvoice.invoice.dto.InvoiceSearchFilter;
 import com.smartinvoice.invoice.dto.InvoiceRequestDto;
 import com.smartinvoice.invoice.dto.InvoiceResponseDto;
-import com.smartinvoice.invoice.repository.InvoiceRepository;
 import com.smartinvoice.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
