@@ -154,14 +154,36 @@ invoice:
 ```
 ./mvnw spring-boot:run
 ```
-### 📸 Planned Screenshots (To Be Added Later)
-Client list view
+### 📸 Planned Screenshots
+<h4 align="center">Login Page</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/218a1f21-df1a-4191-8a7d-a95678f2f86a" width="400"/>
+</p>
 
-Invoice PDF preview
+<h4 align="center">Products Page</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d3d0dcde-adec-4a20-b304-bc6056439e81" width="400"/>
+</p>
 
-Email sent confirmation
+<h4 align="center">Client list view</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a8adcaf9-6355-4d53-b052-12733f4c2950" width="400"/>
+</p>
 
-Mark as Paid toggle or button
+<h4 align="center">Invoices Page</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/55982b67-1a9a-4265-bf1d-4f3901c87f22" width="400"/>
+</p>
+
+<h4 align="center">Invoice PDF preview</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6a780ad6-031c-4cab-9779-e00d16ee9cbc" width="400"/>
+</p>
+
+<h4 align="center">Email sent confirmation</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d9c94dbe-a68b-4a87-8b26-9735d4ba9ad7" width="400"/>
+</p>
 
 ### 🧪 Tests
 Run tests with:
