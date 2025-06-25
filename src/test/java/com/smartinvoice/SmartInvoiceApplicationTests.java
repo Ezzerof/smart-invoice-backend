@@ -9,7 +9,5 @@ import org.springframework.context.annotation.Import;
 class SmartInvoiceApplicationTests {
 
 	@Test
-	void contextLoads() {
-	}
-
+	void contextLoads() {}
 }
