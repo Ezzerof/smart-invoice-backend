@@ -1,7 +1,6 @@
-package com.smartinvoice.audit;
+package com.smartinvoice.audit.service;
 
 import com.smartinvoice.audit.repository.AuditLogRepository;
-import com.smartinvoice.audit.service.AuditLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
