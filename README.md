@@ -190,6 +190,10 @@ Run tests with:
 ```
 ./mvnw test
 ```
+<h4 align="center">Overall Coverage Summary</h4>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2d741360-4770-464b-9d4b-26e18503b442" width="400"/>
+</p>
 
 ### 🚧 Roadmap
 - ✅ **Client / Invoice / Product modules** with full CRUD
