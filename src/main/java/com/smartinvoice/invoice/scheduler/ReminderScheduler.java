@@ -21,7 +21,7 @@ public class ReminderScheduler {
     private final PdfGeneratorService pdfGeneratorService;
     private final EmailService emailService;
 
-    @Scheduled(cron = "0 * * * * *") // every day at 9:00 AM (cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *") // every day at 9:00 AM
     public void runReminderTask() {
         // Combine both overdue AND unpaid pending invoices
         List<Invoice> invoicesToRemind = invoiceRepository.findAllUnpaidWithProductsAndReminders()
